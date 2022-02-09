@@ -1,0 +1,74 @@
+<resources>
+    <string name="app_name">Crankshaft Deflection Gauge</string>
+    <string name="global_object_name">CrankShaftDeflection</string>
+
+    <!-- prefence keys -->
+    <string name="pref_commands_mode">pref_commands_mode</string>
+    <string name="pref_commands_ending">pref_commands_ending</string>
+    <string name="pref_log_timing">pref_log_timing</string>
+    <string name="pref_log_direction">pref_log_direction</string>
+    <string name="pref_need_clean">pref_need_clean</string>
+    <!-- prefence keys -->
+
+
+    <!-- screen title -->
+    <string name="title_main_menu_screen">Crankshaft Deflection Gauge</string>
+    <string name="title_engine_list_screen">Engine List</string>
+    <string name="title_cylinder_test_screen">Cylinder Test</string>
+    <string name="title_result_screen">Result</string>
+    <string name="title_setting_screen">Setting</string>
+    <!-- screen title -->
+
+    <!-- view title -->
+    <string name="engine_list_name">Engines</string>
+    <string name="bluetooth_device_list">Available devices</string>
+    <string name="vertical_deflection">Vertical Deflection</string>
+    <string name="horizontal_deflection">Horizontal Deflection</string>
+    <string name="stand_deflection">Standard Deflection</string>
+    <string name="deflection_data">Deflection Data</string>
+    <string name="cylinder_number">Cylinder Number</string>
+    <!-- view title -->
+
+    <!-- button name -->
+    <string name="cyls_test_btn">Cylinder test</string>
+    <string name="results_btn">Result</string>
+    <string name="setting_btn">Setting</string>
+    <string name="about_btn">About</string>
+    <string name="add_btn">Add</string>
+    <string name="connect_btn">Connect</string>
+    <string name="disconnect_btn">Disconnect</string>
+    <!-- button name -->
+
+
+    <!-- hint string -->
+    <string name="hint_device_name">Connected device</string>
+    <string name="hint_password">PIN</string>
+    <string name="hint_crankshaft_name">Engine name</string>
+    <string name="hint_number_of_cylinder">Number of cylinders</string>
+    <string name="hint_empty_device_name">&lt;New device&gt;</string>
+    <!-- hint string -->
+
+    <!-- menu title -->
+    <string name="menu_settings">Settings</string>
+    <!-- menu title -->
+
+    <!-- info string -->
+    <string name="empty_value">---</string>
+    <string name="turn_off_bt_message">To see other devices,\n turn on Bluetooth</string>
+    <string name="device_name_not_set">Not set</string>
+    <string name="about_text">Copyright © 2015 by Networked Systems Lab. All rights reserved.\n\nThis program is protected by Networked Systems Lab and Orion Technology. Unauthorized reproduction or distribution of this program, or any portion of it, may result in severe civil and criminal penalties, and will be prosecuted to the maximum extent possible under the law.\n\nAll contributing comments please send to: nsl-kit@googlegroups.com or dskim@kumoh.ac.kr \n\nNetworked Systems Lab \n108, Digital-Building, KIT, Yangho-Dong, Gumi, Gyeongbuk 730-701, Korea. \nTel. +82-54-478-7471,7477~8. \nFax. +82-54-478-7449 \nWebsite. http://nsl.kumoh.ac.kr</string>
+    <!-- info string -->
+
+    <!-- alert messages -->
+    <string name="no_bt_support">Your device doesn\'t support bluetooth.</string>
+    <!-- alert messages -->
+
+
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_engine_list">EngineList</string>
+    <string name="action_settings">Settings</string>
+    <string name="modify_engine_menu">Modify</string>
+    <string name="delete_engine_menu">Delete</string>
+    <string name="detail_engine_menu">Detail</string>
+
+</resources>

@@ -1,0 +1,49 @@
+package nsl.orion.crankshaftdeflectiongauge.bluetooth;
+
+import android.bluetooth.BluetoothDevice;
+import android.os.ParcelUuid;
+
+import java.util.ArrayList;
+
+/**
+ * Created by TienNT on 7/7/2015.
+ */
+public class DeviceInfo {
+    private String name = "";
+    private String address = "";
+    private int bondState = BluetoothDevice.BOND_NONE;
+    private ArrayList<ParcelUuid> uuids = null;
+
+    public DeviceInfo(BluetoothDevice device, String emptyName) {
+        name = device.getName();
+        address = device.getAddress();
+        bondState = device.getBondState();
+
+        if (name == null || name.isEmpty()) name = emptyName;
+        uuids = BluetoothUtils.getDeviceUuids(device);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String deviceName) {
+        name = deviceName;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public ArrayList<ParcelUuid> getUuids() {
+        return uuids;
+    }
+
+    public int getBondState() {
+        return bondState;
+    }
+
+    public void setBondState(int state) {
+        bondState = state;
+    }
+}

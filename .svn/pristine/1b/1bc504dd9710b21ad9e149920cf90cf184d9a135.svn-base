@@ -1,0 +1,147 @@
+package nsl.orion.crankshaftdeflectiongauge.activity;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.text.InputType;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
+import android.widget.TextView;
+
+import java.sql.Time;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import nsl.orion.crankshaftdeflectiongauge.CrankShaftDeflection;
+import nsl.orion.crankshaftdeflectiongauge.R;
+import nsl.orion.crankshaftdeflectiongauge.common.Cylinder;
+import nsl.orion.crankshaftdeflectiongauge.common.Engine;
+import nsl.orion.crankshaftdeflectiongauge.common.EngineArrayAdapter;
+
+
+public class EngineList extends Activity {
+
+    private Button buttonAdd;
+    private ImageButton buttonDelete;
+    private EditText engineName, numOfCylinder;
+    private ListView engineListView;
+    private Integer numberOfCylinder;
+    private Map<Long,Engine> engineMap;
+    private ArrayAdapter<Engine> engineAdapter;
+
+
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.engine_list_screen);
+
+        engineListView = (ListView) findViewById(R.id.crankshaftlist);
+        buttonAdd = (Button) findViewById(R.id.add_btn);
+        buttonDelete = (ImageButton) findViewById(R.id.del_btn);
+        engineName = (EditText) findViewById(R.id.etEngineName);
+        numOfCylinder = (EditText) findViewById(R.id.etNumOfCylinder);
+
+        engineName.setInputType(InputType.TYPE_CLASS_TEXT);
+        numOfCylinder.setInputType(InputType.TYPE_CLASS_NUMBER);
+
+        engineMap = CrankShaftDeflection.getEngineMap();
+        engineAdapter = new EngineArrayAdapter(this,new ArrayList(engineMap.values()));
+        engineListView.setAdapter(engineAdapter);
+
+        engineListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Engine selectedEngine = engineAdapter.getItem(position);
+                Bundle bundle = new Bundle();
+                bundle.putLong("engineId", selectedEngine.getId());
+
+                Intent intent = new Intent(getApplicationContext(), CylinderTest.class);
+                intent.putExtras(bundle);
+                startActivity(intent);
+            }
+        });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_engine_list, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void addEngine(View v){
+        if (engineName.getText() != null &&
+                isNumeric(numOfCylinder.getText().toString())) {
+            Time time = new Time(Calendar.getInstance().getTimeInMillis());
+            SimpleDateFormat date = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+            String dateString = date.format(time);
+            String name = engineName.getText().toString();
+
+            Engine tempEngine = new Engine();
+            tempEngine.setName(name);
+            tempEngine.setNumberOfCylinder(numberOfCylinder);
+            tempEngine.setDateOfCreation(dateString);
+            tempEngine.setLastUpdate(dateString);
+            tempEngine.setType("default");
+            tempEngine.setIsFinished(Engine.NOT_FINISHED);
+
+            tempEngine.setId(CrankShaftDeflection.getSqliteConnector().insertEngine(tempEngine));
+            ArrayList<Cylinder> tempCylinderList = new ArrayList();
+            for (int i = 0;i < numberOfCylinder; i++){
+                Cylinder tempCylinder = new Cylinder();
+                tempCylinder.setEngineId(tempEngine.getId());
+                tempCylinder.setOrder(i + 1);
+                tempCylinder.setT(100);
+                tempCylinder.setE(100);
+                tempCylinder.setBe(100);
+                tempCylinder.setBp(100);
+                tempCylinder.setP(100);
+                tempCylinder.setDateOfCreation(dateString);
+                tempCylinder.setLastUpdate(dateString);
+                tempCylinder.setIsFinished(Cylinder.NOT_FINISHED);
+
+                tempCylinderList.add(tempCylinder);
+            }
+            CrankShaftDeflection.getSqliteConnector().insertEmptyCylinders(tempCylinderList);
+            tempEngine.cylinderArrayList = tempCylinderList;
+            engineMap.put(tempEngine.getId(), tempEngine);
+            engineAdapter.add(tempEngine);
+            engineAdapter.notifyDataSetChanged();
+        }
+    }
+
+    private boolean isNumeric(String str)
+    {
+        try
+        {
+            int number = Integer.parseInt(str);
+            numberOfCylinder = number;
+        }
+        catch(NumberFormatException nfe)
+        {
+            return false;
+        }
+        return true;
+    }
+
+
+}

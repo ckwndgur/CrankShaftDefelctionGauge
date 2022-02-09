@@ -1,0 +1,110 @@
+package nsl.orion.crankshaftdeflectiongauge.sqlite;
+
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+
+import java.sql.Time;
+import java.util.Map;
+
+import nsl.orion.crankshaftdeflectiongauge.common.Cylinder;
+import nsl.orion.crankshaftdeflectiongauge.common.Engine;
+
+/**
+ * Created by TienNT on 9/7/2015.
+ */
+public class SQLiteConnector {
+    private static final String DB_NAME = "cdg.db";
+    private static final int DB_VERSION = 1;
+
+    public static final int SUCCESS = 1;
+    public static final int FAIL = 0;
+
+    private static SQLiteDatabase database;
+    private static CDGSQLiteOpenHelper openHelper;
+
+    public SQLiteConnector(Context context) {
+        openHelper = new CDGSQLiteOpenHelper(context, DB_NAME, null, DB_VERSION);
+    }
+
+    public int loadAll(Map<Long, Engine> engineMap) {
+        Cursor cursor1 = database.rawQuery(EngineTable.QUERY_SELECT_ALL,null);
+        if(cursor1!=null&&cursor1.moveToFirst()) {
+            do {
+                Engine tempEngine = new Engine();
+                tempEngine.setId(cursor1.getLong(EngineTable.INDEX_ENGINE_ID));
+                tempEngine.setName(cursor1.getString(EngineTable.INDEX_ENGINE_NAME));
+                tempEngine.setType(cursor1.getString(EngineTable.INDEX_ENGINE_TYPE));
+                tempEngine.setNumberOfCylinder(cursor1.getInt(EngineTable.INDEX_NUMBER_OF_CYLINDER));
+                tempEngine.setDateOfCreation(new Time(cursor1.getLong(EngineTable.INDEX_DATE_OF_CREATION)));
+                tempEngine.setLastUpdate(new Time(cursor1.getLong(EngineTable.INDEX_LAST_UPDATE)));
+
+                engineMap.put(tempEngine.getId(),tempEngine);
+
+            } while (cursor1.moveToNext());
+        }
+
+        Cursor cursor2 = database.rawQuery(CylinderTable.QUERY_SELECT_ALL,null);
+        if (cursor2!=null&&cursor2.moveToFirst()) {
+            do {
+                Cylinder tempCylinder = new Cylinder();
+
+                tempCylinder.setEngineId(cursor2.getLong(CylinderTable.INDEX_ENGINE_ID));
+                tempCylinder.setOrder(cursor2.getInt(CylinderTable.INDEX_ORDER));
+                tempCylinder.setT(cursor2.getFloat(CylinderTable.INDEX_T));
+                tempCylinder.setP(cursor2.getFloat(CylinderTable.INDEX_P));
+                tempCylinder.setBp(cursor2.getFloat(CylinderTable.INDEX_BP));
+                tempCylinder.setBe(cursor2.getFloat(CylinderTable.INDEX_BE));
+                tempCylinder.setE(cursor2.getFloat(CylinderTable.INDEX_E));
+                tempCylinder.setDateOfCreation(new Time(cursor2.getLong(CylinderTable.INDEX_DATE_OF_CREATION)));
+                tempCylinder.setLastUpdate(new Time(cursor2.getLong(CylinderTable.INDEX_LAST_UPDATE)));
+
+                engineMap.get(tempCylinder.getEngineId()).cylinderMap.put(tempCylinder.getOrder(),tempCylinder);
+
+            } while (cursor2.moveToNext());
+        }
+        return SUCCESS;
+    }
+
+    public int insertEngine(Engine engine) {
+
+        return SUCCESS;
+    }
+
+    public int insertEmptyCylinders(int numberOfCylinders, int engineId) {
+
+        return SUCCESS;
+    }
+
+    public int addCylinder(int engineId, int cylinderOrder) {
+
+        return SUCCESS;
+    }
+
+
+    public int updateCylinder(int updatePosition, Cylinder cylinder) {
+
+
+        return SUCCESS;
+    }
+
+
+    public int updateEngine(int numberOfCylinders) {
+
+
+        return SUCCESS;
+    }
+
+
+    public int deleteCylinder(int engineId, int order) {
+
+
+        return SUCCESS;
+    }
+
+
+    public int deleteEngine(int Id) {
+
+        return SUCCESS;
+    }
+}

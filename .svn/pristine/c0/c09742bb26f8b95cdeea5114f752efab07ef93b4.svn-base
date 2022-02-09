@@ -1,0 +1,162 @@
+package nsl.orion.crankshaftdeflectiongauge;
+
+import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
+import android.support.v7.app.ActionBarActivity;
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Set;
+import java.util.UUID;
+
+
+public class CylinderMeasure extends Activity {
+
+
+    BluetoothAdapter mBluetoothAdapter;
+    BluetoothSocket mmSocket;
+    BluetoothDevice mmDevice;
+    InputStream mmInStream;
+    OutputStream mmOutStream;
+    byte[] inputBuffer = new byte[1024];
+
+    private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
+
+
+
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_cylinder_measure);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_cylinder_measure, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void turnOnBT(View view){
+
+        //khoi tao bt adapter
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (mBluetoothAdapter != null) {
+            if (!mBluetoothAdapter.isEnabled()) {
+               // Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+               // startActivityForResult(enableBtIntent, 1);
+            }
+        }
+        //lay danh sach cac thiet bi da ket noi
+
+        Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
+        if (pairedDevices.size() > 0) {
+            for (BluetoothDevice device : pairedDevices) {
+                mmDevice = device;
+            }
+        }
+
+
+    // khoi tao bt socket
+        BluetoothSocket tmp = null;
+        try {
+            tmp = mmDevice.createRfcommSocketToServiceRecord( MY_UUID);
+        } catch (IOException e) { }
+        mmSocket = tmp;
+
+    // ket noi
+        mBluetoothAdapter.cancelDiscovery();
+        try {
+            mmSocket.connect();
+        } catch (IOException connectException) {
+            try {
+                mmSocket.close();
+            } catch (IOException closeException) { }
+            return;
+        }
+
+        //khoi tao input va output
+        InputStream tmpIn = null;
+        OutputStream tmpOut = null;
+
+        try {
+            tmpIn = mmSocket.getInputStream();
+            tmpOut = mmSocket.getOutputStream();
+        } catch (IOException e) { }
+
+        mmInStream = tmpIn;
+        mmOutStream = tmpOut;
+
+        // cbi du lieu va send
+        while(true) {
+            Integer dataInt = new Integer(0x55);
+            byte[] dataArray = new byte[1];
+            dataArray[0] = dataInt.byteValue();
+            try {
+                mmOutStream.write(dataArray);
+            } catch (IOException ie) {
+            }
+
+            //nhan du lieu ve convert va hien thi
+            try {
+                mmInStream.read(inputBuffer);
+            } catch (IOException ie) {
+            }
+
+            float tempValue = inputBuffer[0] + 256 * inputBuffer[1];
+            float receiveValue = tempValue * (float) 0.635;
+
+            TextView outputText = (TextView) findViewById(R.id.outputText);
+
+            Float outValue = new Float(receiveValue);
+
+
+
+            outputText.setText(outValue.toString());
+            try {
+                Thread.sleep(100);
+            }catch (InterruptedException Ie) {};
+        }
+        /*
+
+
+         */
+    }
+
+
+    public void turnOffBT(View view) {
+
+        try {
+            mmSocket.close();
+        } catch (IOException e) { }
+
+        mBluetoothAdapter.disable();
+
+    }
+
+}

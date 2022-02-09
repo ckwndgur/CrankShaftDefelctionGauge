@@ -1,0 +1,126 @@
+package nsl.orion.crankshaftdeflectiongauge.activity;
+
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.os.Bundle;
+import android.os.Message;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.TextView;
+
+import java.lang.ref.WeakReference;
+
+import nsl.orion.crankshaftdeflectiongauge.CrankShaftDeflection;
+import nsl.orion.crankshaftdeflectiongauge.R;
+import nsl.orion.crankshaftdeflectiongauge.bluetooth.BluetoothConnector;
+import nsl.orion.crankshaftdeflectiongauge.bluetooth.DeviceInfo;
+import nsl.orion.crankshaftdeflectiongauge.common.Utils;
+
+
+public class CylinderTest extends Activity {
+
+    private static BluetoothConnector bluetoothConnector;
+    private static BluetoothResponseHandler bluetoothResponseHandler;
+    BluetoothAdapter btAdapter;
+    private CrankShaftDeflection crankShaftDeflection; // Application variable
+    private TextView measuredText;
+    // do not resend request to enable Bluetooth
+    // if there is a request already in progress
+    // See: https://code.google.com/p/android/issues/detail?id=24931#c1
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.cyliner_test_screen);
+
+        if (bluetoothResponseHandler == null)
+            bluetoothResponseHandler = new BluetoothResponseHandler(this);
+        else bluetoothResponseHandler.setTarget(this);
+
+        btAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (btAdapter == null) {
+            final String no_bluetooth = getString(R.string.no_bt_support);
+            showAlertDialog(no_bluetooth);
+        }
+
+        this.measuredText = (TextView) findViewById(R.id.measuredText);
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_cyliner_test, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        return super.onOptionsItemSelected(item);
+    }
+
+
+    private void setupConnector(BluetoothDevice connectedDevice) {
+        stopConnection();
+        try {
+            String emptyName = "<Empty Name>";
+            DeviceInfo deviceInfo = new DeviceInfo(connectedDevice, emptyName);
+            bluetoothConnector = new BluetoothConnector(deviceInfo, bluetoothResponseHandler);
+            bluetoothConnector.connect();
+        } catch (IllegalArgumentException e) {
+            Utils.log("setupConnector failed: " + e.getMessage());
+        }
+    }
+
+    private void stopConnection() {
+        if (bluetoothConnector != null) {
+            bluetoothConnector.stop();
+            bluetoothConnector = null;
+        }
+    }
+
+
+    void updateMeasuredValue(String message) {
+        measuredText.setText(message);
+    }
+
+    void showAlertDialog(String message) {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        alertDialogBuilder.setTitle(getString(R.string.app_name));
+        alertDialogBuilder.setMessage(message);
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
+    }
+
+
+    private static class BluetoothResponseHandler extends android.os.Handler {
+        private WeakReference<CylinderTest> cylinderTestWeakReference;
+
+        public BluetoothResponseHandler(CylinderTest activity) {
+            cylinderTestWeakReference = new WeakReference<>(activity);
+        }
+
+        public void setTarget(CylinderTest target) {
+            cylinderTestWeakReference.clear();
+            cylinderTestWeakReference = new WeakReference<>(target);
+        }
+
+        @Override
+        public void handleMessage(Message message) {
+            CylinderTest activity = cylinderTestWeakReference.get();
+            if (activity != null) {
+                final String value = (String) message.obj;
+                if (value != null) {
+                    activity.updateMeasuredValue(value);
+                }
+
+            }
+        }
+    }
+
+}

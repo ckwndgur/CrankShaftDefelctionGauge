@@ -1,0 +1,16 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:height="300dp"
+    android:width="300dp"
+    android:viewportHeight="400"
+    android:viewportWidth="400" >
+    <group
+        android:name="rotationGroup"
+        android:pivotX="200"
+        android:pivotY="200"
+        android:rotation="66" >
+        <path
+            android:name="v"
+            android:fillColor="@color/cyan"
+            android:pathData="M 200 300 L 200 400 A 200 200 0 0 0 373.21 300 L 286.6 250 A 100 100 0 0 1 200 300 Z " />
+    </group>
+</vector><!-- From: file:/C:/Users/TienNT/Desktop/Orion_Android/CrankshaftDeflectionGauge/app/src/main/res/drawable/test_be_btn.xml -->

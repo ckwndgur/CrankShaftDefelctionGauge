@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="nsl.orion.crankshaftdeflectiongauge"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="21"
+        android:targetSdkVersion="22" />
+
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <application
+        android:name="nsl.orion.crankshaftdeflectiongauge.CrankShaftDeflection"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        <activity
+            android:name="nsl.orion.crankshaftdeflectiongauge.activity.MainMenu"
+            android:label="@string/title_main_menu_screen" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="nsl.orion.crankshaftdeflectiongauge.activity.EngineList"
+            android:label="@string/title_engine_list_screen"
+            android:windowSoftInputMode="stateHidden" >
+        </activity>
+        <activity
+            android:name="nsl.orion.crankshaftdeflectiongauge.activity.Setting"
+            android:label="@string/title_setting_screen" >
+        </activity>
+        <activity
+            android:name="nsl.orion.crankshaftdeflectiongauge.activity.CylinderTest"
+            android:label="@string/title_cylinder_test_screen" >
+        </activity>
+        <activity
+            android:name="nsl.orion.crankshaftdeflectiongauge.activity.Result"
+            android:label="@string/title_result_screen" >
+        </activity>
+        <activity
+            android:name="nsl.orion.crankshaftdeflectiongauge.activity.About"
+            android:label="@string/title_activity_about" >
+        </activity>
+    </application>
+
+</manifest>

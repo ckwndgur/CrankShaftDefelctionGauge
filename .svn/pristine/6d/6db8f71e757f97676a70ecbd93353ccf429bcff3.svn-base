@@ -1,0 +1,22 @@
+package nsl.orion.crankshaftdeflectiongauge;
+
+import android.app.Application;
+
+import nsl.orion.crankshaftdeflectiongauge.bluetooth.BluetoothConnector;
+import nsl.orion.crankshaftdeflectiongauge.sqlite.SQLiteConnector;
+
+/**
+ * Created by TienNT on 8/26/2015.
+ */
+public class CrankShaftDeflection extends Application {
+
+
+    public static BluetoothConnector bluetoothConnector;
+    public static SQLiteConnector sqLiteConnector;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+    }
+}

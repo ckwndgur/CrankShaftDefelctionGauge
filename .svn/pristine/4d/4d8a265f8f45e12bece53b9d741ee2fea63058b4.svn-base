@@ -1,0 +1,38 @@
+package nsl.orion.crankshaftdeflectiongauge.bluetooth;
+
+import android.os.Message;
+
+import java.lang.ref.WeakReference;
+
+import nsl.orion.crankshaftdeflectiongauge.activity.CylinderTest;
+
+/**
+ * Created by TienNT on 9/16/2015.
+ */
+public class BluetoothDataHandler extends android.os.Handler {
+    private WeakReference<CylinderTest> cylinderTestWeakReference;
+
+    public BluetoothDataHandler(CylinderTest activity) {
+        cylinderTestWeakReference = new WeakReference<>(activity);
+    }
+
+    public void setTarget(CylinderTest target) {
+        cylinderTestWeakReference.clear();
+        cylinderTestWeakReference = new WeakReference<>(target);
+    }
+
+    @Override
+    public void handleMessage(Message message) {
+        CylinderTest activity = cylinderTestWeakReference.get();
+        if (activity != null) {
+            Integer value = (Integer) message.obj;
+            if (value != null) {
+                activity.setReceivedValue(value);
+                Float fValue = (float) (value - BluetoothConnector.getStandardValue()) / 100;
+                activity.updateMeasuredValue(fValue.toString());
+
+            }
+
+        }
+    }
+}

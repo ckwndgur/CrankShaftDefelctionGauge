@@ -1,0 +1,86 @@
+package nsl.orion.crankshaftdeflectiongauge.activity;
+
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.bluetooth.BluetoothAdapter;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.GestureDetector;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import nsl.orion.crankshaftdeflectiongauge.CrankShaftDeflection;
+import nsl.orion.crankshaftdeflectiongauge.R;
+import nsl.orion.crankshaftdeflectiongauge.bluetooth.BluetoothDataHandler;
+
+
+public class CylinderTest extends Activity {
+
+    private static BluetoothDataHandler bluetoothDataHandler;
+    private BluetoothAdapter btAdapter;
+    private TextView measuredText;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.cyliner_test_screen);
+
+        ImageView gauge = (ImageView) findViewById(R.id.gauge);
+        gauge.setOnTouchListener(new View.OnTouchListener() {
+
+            private GestureDetector gestureDetector = new GestureDetector(CylinderTest.this, new GestureDetector.SimpleOnGestureListener() {
+                @Override
+                public boolean onDoubleTap(MotionEvent e) {
+                    Log.d("GAUGE CYLINDER TEST", "onDoubleTap" + e.getX() + " " + e.getY());
+                    return super.onDoubleTap(e);
+                }
+            });
+
+            @Override
+            public boolean onTouch(View v, final MotionEvent event) {
+                gestureDetector.onTouchEvent(event);
+                return true;
+            }
+        });
+        if (bluetoothDataHandler == null)
+            bluetoothDataHandler = new BluetoothDataHandler(this);
+        else bluetoothDataHandler.setTarget(this);
+
+        CrankShaftDeflection.setBluetoothDataHandler(bluetoothDataHandler);
+
+        btAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (btAdapter == null) {
+            final String no_bluetooth = getString(R.string.no_bt_support);
+            showAlertDialog(no_bluetooth);
+        }
+        this.measuredText = (TextView) findViewById(R.id.measuredText);
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_cyliner_test, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void updateMeasuredValue(String message) {
+        measuredText.setText(message);
+    }
+
+    private void showAlertDialog(String message) {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        alertDialogBuilder.setTitle(getString(R.string.app_name));
+        alertDialogBuilder.setMessage(message);
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
+    }
+}

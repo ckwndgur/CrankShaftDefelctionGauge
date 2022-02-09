@@ -1,0 +1,152 @@
+package nsl.orion.crankshaftdeflectiongauge.activity;
+
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.bluetooth.BluetoothAdapter;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.GestureDetector;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import nsl.orion.crankshaftdeflectiongauge.CrankShaftDeflection;
+import nsl.orion.crankshaftdeflectiongauge.R;
+import nsl.orion.crankshaftdeflectiongauge.bluetooth.BluetoothConnector;
+import nsl.orion.crankshaftdeflectiongauge.bluetooth.BluetoothDataHandler;
+
+
+public class CylinderTest extends Activity {
+
+    private static BluetoothDataHandler bluetoothDataHandler;
+    private BluetoothAdapter btAdapter;
+    private TextView measuredText;
+    private Integer receivedValue;
+    private static final double cos_54degree = Math.cos(0.942477796);
+    private static final double cos_126degree = Math.cos(2.19911486);
+    private static final double cos_198degree = Math.cos(3.45575192);
+    private static final double cos_270degree = Math.cos(4.71238898);
+    private static final double cos_342degree = Math.cos(5.96902604);
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.cyliner_test_screen);
+
+        final ImageView gauge = (ImageView) findViewById(R.id.gauge);
+        gauge.setOnTouchListener(new View.OnTouchListener() {
+
+            private GestureDetector gestureDetector = new GestureDetector(CylinderTest.this, new GestureDetector.SimpleOnGestureListener() {
+                @Override
+                public boolean onDoubleTap(MotionEvent motionEvent) {
+                    double halfViewSize = gauge.getWidth()/2;
+                    double coodinate_Bx = motionEvent.getX() - halfViewSize;
+                    double coodinate_By = halfViewSize - motionEvent.getY();
+                    double segment_OB =Math.sqrt( Math.pow((coodinate_Bx),2) + Math.pow((coodinate_By),2) );
+
+                    double cos_AOB = coodinate_Bx/segment_OB;
+
+                    if(segment_OB > halfViewSize/2 && segment_OB < halfViewSize){
+                        if(coodinate_By > 0){
+                            if(cos_AOB > cos_54degree){
+                                updateP();
+                            } else
+                            if(cos_AOB >cos_126degree){
+                                updateT();
+                            } else {
+                                updateE();
+                            }
+                        }
+                        else {
+                            if(cos_AOB > cos_342degree){
+                                updateP();
+                            } else
+                            if(cos_AOB > cos_270degree){
+                                updateBP();
+                            } else
+                            if(cos_AOB > cos_198degree){
+                                updateBE();
+                            } else {
+                                updateE();
+                            }
+                        }
+                    } else if(segment_OB < halfViewSize/2) updateStandardValue();
+                    return super.onDoubleTap(motionEvent);
+                }
+            });
+
+            @Override
+            public boolean onTouch(View v, final MotionEvent event) {
+                gestureDetector.onTouchEvent(event);
+                return true;
+            }
+        });
+        if (bluetoothDataHandler == null)
+            bluetoothDataHandler = new BluetoothDataHandler(this);
+        else bluetoothDataHandler.setTarget(this);
+
+        BluetoothConnector.setBluetoothDataHandler(bluetoothDataHandler);
+
+        btAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (btAdapter == null) {
+            final String no_bluetooth = getString(R.string.no_bt_support);
+            showAlertDialog(no_bluetooth);
+        }
+        this.measuredText = (TextView) findViewById(R.id.measuredText);
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_cyliner_test, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void updateMeasuredValue(String message) {
+        measuredText.setText(message);
+    }
+
+    private void showAlertDialog(String message) {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        alertDialogBuilder.setTitle(getString(R.string.app_name));
+        alertDialogBuilder.setMessage(message);
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
+    }
+
+    private void updateT(){
+        Log.d("DoubleTap", "updateT() function called");
+    }
+
+    private void updateP(){
+        Log.d("DoubleTap","updateP() function called");
+    }
+
+    private void updateBP(){
+        Log.d("DoubleTap","updateBP() function called");
+    }
+
+    private void updateBE(){
+        Log.d("DoubleTap","updateBE() function called");
+    }
+
+    private void updateE(){
+        Log.d("DoubleTap","updateE() function called");
+    }
+
+    private void updateStandardValue(){
+        BluetoothConnector.setStandardValue(receivedValue);
+    }
+
+    public void setReceivedValue(Integer receivedValue) {
+        this.receivedValue = receivedValue;
+    }
+}

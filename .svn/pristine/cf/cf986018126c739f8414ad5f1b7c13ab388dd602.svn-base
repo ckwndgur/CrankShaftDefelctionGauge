@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="cyls_test_btn">CYLS TEST</string>
+    <string name="results_btn">RESULTS</string>
+    <string name="setting_btn">SETTING</string>
+    <string name="about_btn">ABOUT</string>
+    <string name="crankshaft_list_name">Crankshafts</string>
+</resources>

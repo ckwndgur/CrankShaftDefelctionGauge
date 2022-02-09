@@ -1,0 +1,200 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:paddingLeft="0dp"
+    android:paddingRight="0dp"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="0dp"
+    tools:context="nsl.orion.crankshaftdeflectiongauge.CylinerTest"
+    android:orientation="vertical"
+    android:layout_weight="9">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+        <TextView
+            android:hint="Engine name"
+            android:textColor="#f8ffffff"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:textSize="@dimen/abc_text_size_medium_material"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="7"
+        android:gravity="center">
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true">
+
+            <ImageView
+                android:id="@+id/test_t_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/test_t_btn"
+                android:layout_centerInParent="true"
+                android:background="@color/transparent"/>
+
+            <TextView
+                android:text="@string/empty_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:layout_marginLeft="140dp"
+                android:textSize="@dimen/abc_text_size_medium_material"
+                android:id="@+id/tvT"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true">
+            <ImageView
+                android:id="@+id/test_p_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/test_p_btn"
+                android:layout_centerInParent="true"
+                android:background="@color/transparent"/>
+
+            <TextView
+                android:text="@string/empty_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="100dp"
+                android:layout_marginLeft="240dp"
+                android:textSize="@dimen/abc_text_size_medium_material"
+                android:id="@+id/tvP"/>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true">
+
+            <ImageView
+                android:id="@+id/test_bp_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/test_bp_btn"
+                android:layout_centerInParent="true"
+                android:background="@color/transparent"/>
+
+            <TextView
+                android:text="@string/empty_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="230dp"
+                android:layout_marginLeft="210dp"
+                android:textSize="@dimen/abc_text_size_medium_material"
+                android:id="@+id/tvBP"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true">
+
+            <ImageView
+                android:id="@+id/test_be_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/test_be_btn"
+                android:layout_centerInParent="true"
+                android:background="@color/transparent"/>
+
+            <TextView
+                android:text="@string/empty_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="230dp"
+                android:layout_marginLeft="70dp"
+                android:textSize="@dimen/abc_text_size_medium_material"
+                android:id="@+id/tvBE"/>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true">
+
+            <ImageView
+                android:id="@+id/test_e_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/test_e_btn"
+                android:layout_centerInParent="true"
+                android:background="@color/transparent"/>
+
+            <TextView
+                android:text="@string/empty_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="100dp"
+                android:layout_marginLeft="37dp"
+                android:textSize="@dimen/abc_text_size_medium_material"
+                android:id="@+id/tvE"/>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/gauge"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true">
+            <ImageView
+                android:id="@+id/circle_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/circle_btn"
+                android:background="@color/transparent"
+                android:layout_centerVertical="true"
+                android:layout_centerHorizontal="true"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="@string/empty_value"
+                android:id="@+id/measuredText"
+                android:textSize="@dimen/abc_text_size_medium_material"/>
+
+        </RelativeLayout>
+
+
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@color/cyan"
+        android:layout_weight="1">
+        <ImageButton
+            android:id="@+id/arrow_left_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_keyboard_arrow_left_white_48dp"
+            android:padding="@dimen/activity_vertical_margin"
+            android:background="@color/cyan"
+            android:layout_alignParentLeft="true">
+        </ImageButton>
+
+        <ImageButton
+            android:id="@+id/arrow_right_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_keyboard_arrow_right_white_48dp"
+            android:padding="@dimen/activity_vertical_margin"
+            android:background="@color/cyan"
+            android:layout_alignParentRight="true">
+        </ImageButton>
+
+    </RelativeLayout>
+
+</LinearLayout>

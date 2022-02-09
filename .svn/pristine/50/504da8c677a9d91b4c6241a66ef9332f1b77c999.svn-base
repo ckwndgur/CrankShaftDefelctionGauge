@@ -1,0 +1,102 @@
+package nsl.orion.crankshaftdeflectiongauge.common;
+
+import java.sql.Time;
+
+/**
+ * Created by TienNT on 9/6/2015.
+ */
+public class Cylinder {
+    private Long engineId;
+    private Integer order;
+    private Float t;
+    private Float p;
+    private Float bp;
+    private Float be;
+    private Float e;
+    private Time dateOfCreation;
+    private Time lastUpdate;
+
+    public Cylinder(Long engineId, Integer order, Float t, Float p, Float bp, Float be, Float e, Time dateOfCreation, Time lastUpdate) {
+        this.engineId = engineId;
+        this.order = order;
+        this.t = t;
+        this.p = p;
+        this.bp = bp;
+        this.be = be;
+        this.e = e;
+        this.dateOfCreation = dateOfCreation;
+        this.lastUpdate = lastUpdate;
+    }
+
+    public long getEngineId() {
+        return engineId;
+    }
+
+    public void setEngineId(long engineId) {
+        this.engineId = engineId;
+    }
+
+    public int getOrder() {
+        return order;
+    }
+
+    public void setOrder(int order) {
+        this.order = order;
+    }
+
+    public float getT() {
+        return t;
+    }
+
+    public void setT(float t) {
+        this.t = t;
+    }
+
+    public float getP() {
+        return p;
+    }
+
+    public void setP(float p) {
+        this.p = p;
+    }
+
+    public float getBp() {
+        return bp;
+    }
+
+    public void setBp(float bp) {
+        this.bp = bp;
+    }
+
+    public float getBe() {
+        return be;
+    }
+
+    public void setBe(float be) {
+        this.be = be;
+    }
+
+    public float getE() {
+        return e;
+    }
+
+    public void setE(float e) {
+        this.e = e;
+    }
+
+    public Time getDateOfCreation() {
+        return dateOfCreation;
+    }
+
+    public void setDateOfCreation(Time dateOfCreation) {
+        this.dateOfCreation = dateOfCreation;
+    }
+
+    public Time getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public void setLastUpdate(Time lastUpdate) {
+        this.lastUpdate = lastUpdate;
+    }
+}

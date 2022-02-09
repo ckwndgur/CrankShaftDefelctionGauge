@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/measureDeflection"
+        android:title="@string/measure_deflection_menu"/>
+
+    <item
+        android:id="@+id/modifyEngine"
+        android:title="@string/modify_engine_menu"/>
+
+    <item
+        android:id="@+id/deleteEngine"
+        android:title="@string/delete_engine_menu"/>
+
+    <item
+        android:id="@+id/engineDetail"
+        android:title="@string/detail_engine_menu"/>
+</menu>

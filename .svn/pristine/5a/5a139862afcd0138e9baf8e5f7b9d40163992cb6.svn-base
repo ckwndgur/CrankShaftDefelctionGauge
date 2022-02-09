@@ -1,0 +1,126 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="nsl.orion.crankshaftdeflectiongauge.activity.Setting">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:layout_weight="4"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <EditText
+            android:id="@+id/edit_devicename"
+            android:layout_width="200dp"
+            android:layout_height="20dp"
+            android:layout_weight="1"
+            android:editable="false"
+            android:hint="Measutal device"
+            android:textColor="@color/bright_foreground_material_light"
+            android:textColorHint="@color/cyan" />
+
+        <EditText
+            android:id="@+id/edit_password"
+            android:layout_width="200dp"
+            android:layout_height="20dp"
+            android:layout_weight="1"
+            android:hint="@string/hint_password"
+            android:inputType="textPassword"
+            android:textColor="@color/bright_foreground_material_light"
+            android:textColorHint="@color/cyan" />
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:weightSum="2">
+
+            <Button
+                android:id="@+id/connect_bluetooth"
+                android:layout_width="200dp"
+                android:layout_height="50dp"
+                android:background="@color/cyan"
+                android:onClick="connect"
+                android:text="@string/connect_btn"
+                android:visibility="visible" />
+
+            <Button
+                android:id="@+id/disconnect_bluetooth"
+                android:layout_width="200dp"
+                android:layout_height="50dp"
+                android:background="@color/cyan"
+                android:onClick="disconnect"
+                android:text="@string/disconnect_btn"
+                android:visibility="gone" />
+
+        </RelativeLayout>
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="5"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:paddingLeft="20dp"
+            android:text="@string/bluetooth_device_list"
+            android:textColor="@color/cyan"
+            android:textSize="20sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="3dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:background="@color/cyan" />
+
+        <ListView
+            android:id="@+id/crankshaftlist"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="fill_vertical">
+
+        </ListView>
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@color/cyan"
+        android:gravity="center"
+        android:weightSum="1">
+
+
+        <ImageButton
+            android:id="@+id/ic_bluetooth_disable_white_48dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/cyan"
+            android:onClick="turnOffBT"
+            android:src="@mipmap/ic_bluetooth_disabled_white_48dp"
+            android:visibility="visible" />
+
+        <ImageButton
+            android:id="@+id/ic_bluetooth_white_48dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/cyan"
+            android:onClick="turnOnBT"
+            android:src="@mipmap/ic_bluetooth_white_48dp"
+            android:visibility="gone" />
+
+    </RelativeLayout>
+</LinearLayout>

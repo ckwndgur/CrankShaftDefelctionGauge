@@ -1,0 +1,411 @@
+package nsl.orion.crankshaftdeflectiongauge.activity;
+
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.bluetooth.BluetoothAdapter;
+import android.os.Bundle;
+import android.os.Message;
+import android.util.Log;
+import android.view.GestureDetector;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import java.lang.ref.WeakReference;
+import java.sql.Time;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
+import nsl.orion.crankshaftdeflectiongauge.CrankShaftDeflection;
+import nsl.orion.crankshaftdeflectiongauge.R;
+import nsl.orion.crankshaftdeflectiongauge.bluetooth.BluetoothConnector;
+import nsl.orion.crankshaftdeflectiongauge.common.Cylinder;
+import nsl.orion.crankshaftdeflectiongauge.common.Engine;
+
+
+public class CylinderTest extends Activity {
+
+    private static final double cos_54degree = Math.cos(0.942477796);
+    private static final double cos_126degree = Math.cos(2.19911486);
+    private static final double cos_198degree = Math.cos(3.45575192);
+    private static final double cos_270degree = Math.cos(4.71238898);
+    private static final double cos_342degree = Math.cos(5.96902604);
+    private static BluetoothDataHandler bluetoothDataHandler;
+    private static boolean btConnected;
+    private Engine currentEngine;
+    private Cylinder currentCylinder;
+
+    private static Object lock = new Object();
+
+    private TextView measuredText, engineNameTextView, cylinderOrderTextView, displayTTextView, displayPTextView, displayBPTextView, displayBETextView, displayETextView;
+    private ImageButton nextCylinderImageButton, prevCylinderImageButton, addCylinderImageButton;
+    private Integer receivedValue;
+
+    public synchronized void setCurrentValue(Float currentValue) {
+        synchronized (lock) {
+            this.currentValue = currentValue;
+        }
+    }
+
+    private float currentValue = 0f;
+    private int currentOrder = 0;
+
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.cyliner_test_screen);
+
+        displayTTextView = (TextView) findViewById(R.id.tvT);
+        displayPTextView = (TextView) findViewById(R.id.tvP);
+        displayBPTextView = (TextView) findViewById(R.id.tvBP);
+        displayBETextView = (TextView) findViewById(R.id.tvBE);
+        displayETextView = (TextView)findViewById(R.id.tvE);
+        engineNameTextView = (TextView) findViewById(R.id.tvEngineName);
+        cylinderOrderTextView = (TextView) findViewById(R.id.tvCylinderNumber);
+        nextCylinderImageButton = (ImageButton) findViewById(R.id.arrow_right_btn);
+        prevCylinderImageButton = (ImageButton) findViewById(R.id.arrow_left_btn);
+        addCylinderImageButton = (ImageButton) findViewById(R.id.add_cylinder_btn);
+        final ImageView gaugeImageView = (ImageView) findViewById(R.id.gauge);
+
+        prevCylinderImageButton.setVisibility(View.GONE);
+
+        currentEngine = CrankShaftDeflection.getEngineMap().get(getIntent().getExtras().getLong("engineId"));
+        currentCylinder = currentEngine.cylinderArrayList.get(currentOrder);
+
+        gaugeImageView.setOnTouchListener(new View.OnTouchListener() {
+            GestureDetector gestureDetector = new GestureDetector(CylinderTest.this, new GestureDetector.SimpleOnGestureListener() {
+                @Override
+                public boolean onDoubleTap(MotionEvent motionEvent) {
+                    double halfViewSize = gaugeImageView.getWidth() / 2;
+                    double coodinate_Bx = motionEvent.getX() - halfViewSize;
+                    double coodinate_By = halfViewSize - motionEvent.getY();
+                    double segment_OB = Math.sqrt(Math.pow((coodinate_Bx), 2) + Math.pow((coodinate_By), 2));
+
+                    double cos_AOB = coodinate_Bx / segment_OB;
+
+                    if (segment_OB > halfViewSize / 2 && segment_OB < halfViewSize) {
+                        if (coodinate_By > 0) {
+                            if (cos_AOB > cos_54degree) {
+                                updateP();
+                            } else if (cos_AOB > cos_126degree) {
+                                updateT();
+                            } else {
+                                updateE();
+                            }
+                        } else {
+                            if (cos_AOB > cos_342degree) {
+                                updateP();
+                            } else if (cos_AOB > cos_270degree) {
+                                updateBP();
+                            } else if (cos_AOB > cos_198degree) {
+                                updateBE();
+                            } else {
+                                updateE();
+                            }
+                        }
+                    } else if (segment_OB < halfViewSize / 2) {
+                        updateStandardValue();
+                    }
+                    return super.onDoubleTap(motionEvent);
+                }
+            });
+
+            @Override
+            public boolean onTouch(View v, final MotionEvent event) {
+                gestureDetector.onTouchEvent(event);
+                return true;
+            }
+        });
+        if (bluetoothDataHandler == null)
+            bluetoothDataHandler = new BluetoothDataHandler(this);
+        else bluetoothDataHandler.setTarget(this);
+
+        BluetoothConnector.setBluetoothDataHandler(bluetoothDataHandler);
+
+        BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (btAdapter == null) {
+            showAlertDialog(getString(R.string.no_bt_support));
+        }
+        this.measuredText = (TextView) findViewById(R.id.measuredText);
+        if (BluetoothConnector.getTargetDevice() != null)
+            if (BluetoothConnector.getConnectionState()!=BluetoothConnector.CONNECTION_STATE_CONNECTED)
+            CrankShaftDeflection.getBluetoothConnector().connect();
+
+        loadMeasuredValue();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_cyliner_test, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void updateMeasuredValue(String message) {
+        measuredText.setText(message);
+    }
+
+    private void showAlertDialog(String message) {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        alertDialogBuilder.setTitle(getString(R.string.app_name));
+        alertDialogBuilder.setMessage(message);
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
+    }
+
+    private void updateT() {
+        if (btConnected) {
+            synchronized (lock) {
+                displayTTextView.setText(String.valueOf(currentValue));
+                currentCylinder.setT(currentValue);
+            }
+            Time time = new Time(Calendar.getInstance().getTimeInMillis());
+            SimpleDateFormat date = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+            String dateString = date.format(time);
+            CrankShaftDeflection.getSqliteConnector().updateCylinder(Cylinder.POSITION_T, currentCylinder,dateString);
+            currentCylinder.finishedPositions[Cylinder.POSITION_T]=true;
+
+            updateFinished(dateString);
+
+            Log.d("DoubleTap", "updateT() function called");
+        } else showAlertDialog("There is a problem with your bluetooth connection.");
+    }
+
+    private void updateP() {
+        if (btConnected) {
+            synchronized (lock) {
+                displayPTextView.setText(String.valueOf(currentValue));
+                currentCylinder.setP(currentValue);
+            }
+            Time time = new Time(Calendar.getInstance().getTimeInMillis());
+            SimpleDateFormat date = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+            String dateString = date.format(time);
+            CrankShaftDeflection.getSqliteConnector().updateCylinder(Cylinder.POSITION_P, currentCylinder,dateString);
+            currentCylinder.finishedPositions[Cylinder.POSITION_P]=true;
+
+            updateFinished(dateString);
+
+            Log.d("DoubleTap", "updateP() function called");
+        } else showAlertDialog("There is a problem with your bluetooth connection.");
+
+    }
+
+    private void updateBP() {
+        if (btConnected) {
+            synchronized (lock) {
+                displayBPTextView.setText(String.valueOf(currentValue));
+                currentCylinder.setBp(currentValue);
+            }
+            Time time = new Time(Calendar.getInstance().getTimeInMillis());
+            SimpleDateFormat date = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+            String dateString = date.format(time);
+            CrankShaftDeflection.getSqliteConnector().updateCylinder(Cylinder.POSITION_BP, currentCylinder,dateString);
+            currentCylinder.finishedPositions[Cylinder.POSITION_BP]=true;
+
+            updateFinished(dateString);
+
+            Log.d("DoubleTap", "updateBP() function called");
+        } else showAlertDialog("There is a problem with your bluetooth connection.");
+
+    }
+
+    private void updateBE() {
+        if (btConnected) {
+            synchronized (lock) {
+                displayBETextView.setText(String.valueOf(currentValue));
+                currentCylinder.setBe(currentValue);
+            }
+            Time time = new Time(Calendar.getInstance().getTimeInMillis());
+            SimpleDateFormat date = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+            String dateString = date.format(time);
+            CrankShaftDeflection.getSqliteConnector().updateCylinder(Cylinder.POSITION_BE, currentCylinder,dateString);
+            currentCylinder.finishedPositions[Cylinder.POSITION_BE]=true;
+
+            updateFinished(dateString);
+
+            Log.d("DoubleTap", "updateBE() function called");
+        } else showAlertDialog("There is a problem with your bluetooth connection.");
+
+    }
+
+    private void updateE() {
+        if (btConnected) {
+            synchronized (lock) {
+                displayETextView.setText(String.valueOf(currentValue));
+                currentCylinder.setE(currentValue);
+            }
+            Time time = new Time(Calendar.getInstance().getTimeInMillis());
+            SimpleDateFormat date = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+            String dateString = date.format(time);
+            CrankShaftDeflection.getSqliteConnector().updateCylinder(Cylinder.POSITION_E, currentCylinder,dateString);
+            currentCylinder.finishedPositions[Cylinder.POSITION_E]=true;
+
+            updateFinished(dateString);
+
+            Log.d("DoubleTap", "updateE() function called");
+        } else showAlertDialog("There is a problem with your bluetooth connection.");
+
+    }
+
+    private void updateFinished(String lastUpdate){
+        if(currentCylinder.finishedPositions[Cylinder.POSITION_T]&&
+                currentCylinder.finishedPositions[Cylinder.POSITION_P]&&
+                currentCylinder.finishedPositions[Cylinder.POSITION_BP]&&
+                currentCylinder.finishedPositions[Cylinder.POSITION_BE]&&
+                currentCylinder.finishedPositions[Cylinder.POSITION_E]) {
+            currentCylinder.setIsFinished(Cylinder.FINISHED);
+            CrankShaftDeflection.getSqliteConnector().updateIsFinishedCylinder(currentCylinder);
+            boolean enginedFinished=true;
+            for(Cylinder cylinder: currentEngine.cylinderArrayList)
+                if (cylinder.getIsFinished()==Cylinder.NOT_FINISHED) {
+                    enginedFinished = false;
+                    break;
+                }
+            if(enginedFinished){
+                currentEngine.setIsFinished(Engine.FINISHED);
+                CrankShaftDeflection.getSqliteConnector().updateEngine(currentEngine,lastUpdate);
+            }
+        }
+    }
+
+    private void loadMeasuredValue(){
+
+        currentCylinder = currentEngine.cylinderArrayList.get(currentOrder);
+            engineNameTextView.setText(currentEngine.getName());
+            cylinderOrderTextView.setText("Cylinder " + currentCylinder.getOrder().toString());
+            if (currentCylinder.getIsFinished() == Cylinder.FINISHED) {
+                for(int i=0; i < currentCylinder.finishedPositions.length;i++)currentCylinder.finishedPositions[i]=true;
+                displayTTextView.setText(currentCylinder.getT().toString());
+                displayPTextView.setText(currentCylinder.getP().toString());
+                displayBPTextView.setText(currentCylinder.getBp().toString());
+                displayBETextView.setText(currentCylinder.getBe().toString());
+                displayETextView.setText(currentCylinder.getE().toString());
+            } else {
+                displayTTextView.setText(getResources().getString(R.string.empty_value));
+                displayPTextView.setText(getResources().getString(R.string.empty_value));
+                displayBPTextView.setText(getResources().getString(R.string.empty_value));
+                displayBETextView.setText(getResources().getString(R.string.empty_value));
+                displayETextView.setText(getResources().getString(R.string.empty_value));
+            }
+    }
+
+    public void nextCylinder(View v){
+        if (currentOrder < currentEngine.cylinderArrayList.size() - 1){
+        currentOrder++;
+        loadMeasuredValue();
+            prevCylinderImageButton.setVisibility(View.VISIBLE);
+            if(currentOrder == currentEngine.cylinderArrayList.size()-1){
+                nextCylinderImageButton.setVisibility(View.GONE);
+//                addCylinderImageButton.setVisibility(View.VISIBLE);
+            }
+        }
+    }
+
+    public void prevCylinder(View v){
+        if(currentOrder>=1){
+        currentOrder--;
+        loadMeasuredValue();
+            addCylinderImageButton.setVisibility(View.GONE);
+            nextCylinderImageButton.setVisibility(View.VISIBLE);
+            if(currentOrder == 0){
+                prevCylinderImageButton.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    public void addCylinder(View v){
+        currentOrder++;
+        Time time = new Time(Calendar.getInstance().getTimeInMillis());
+        SimpleDateFormat date = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        String dateString = date.format(time);
+        currentEngine.setNumberOfCylinder(currentEngine.getNumberOfCylinder()+1);
+        currentCylinder = new Cylinder();
+        currentCylinder.setEngineId(currentEngine.getId());
+        currentCylinder.setOrder(currentOrder);
+        currentCylinder.setT(100);
+        currentCylinder.setE(100);
+        currentCylinder.setBe(100);
+        currentCylinder.setBp(100);
+        currentCylinder.setP(100);
+        currentCylinder.setDateOfCreation(dateString);
+        currentCylinder.setLastUpdate(dateString);
+        currentCylinder.setIsFinished(Cylinder.NOT_FINISHED);
+        currentEngine.cylinderArrayList.add(currentCylinder);
+
+        CrankShaftDeflection.getSqliteConnector().addCylinder(currentCylinder);
+        CrankShaftDeflection.getSqliteConnector().updateEngine(currentEngine,dateString);
+        loadMeasuredValue();
+    }
+
+    private void updateStandardValue() {
+        if (btConnected) {
+            BluetoothConnector.setStandardValue(receivedValue);
+        } else showAlertDialog("There is a problem with your bluetooth connection.");
+    }
+
+    public void setReceivedValue(Integer receivedValue) {
+        this.receivedValue = receivedValue;
+    }
+
+    private class BluetoothDataHandler extends android.os.Handler {
+        private WeakReference<CylinderTest> cylinderTestWeakReference;
+
+        public BluetoothDataHandler(CylinderTest activity) {
+            cylinderTestWeakReference = new WeakReference<>(activity);
+        }
+
+        public void setTarget(CylinderTest target) {
+            cylinderTestWeakReference.clear();
+            cylinderTestWeakReference = new WeakReference<>(target);
+        }
+
+        @Override
+        public void handleMessage(Message message) {
+            CylinderTest activity = cylinderTestWeakReference.get();
+            if (activity != null) {
+                switch (message.what) {
+                    case BluetoothConnector.CONNECTION_STATE_CHANGE:
+                        switch (BluetoothConnector.getConnectionState()) {
+                            case BluetoothConnector.CONNECTION_STATE_NONE:
+                                btConnected = false;
+                                activity.updateMeasuredValue("disconnected");
+                                break;
+                            case BluetoothConnector.CONNECTION_STATE_CONNECTING:
+                                btConnected = false;
+                                try {
+                                    Thread.sleep(300);
+                                    activity.updateMeasuredValue("connecting");
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                    Log.d("ConnectionStateChange", "sleep error");
+                                }
+                                bluetoothDataHandler.obtainMessage(BluetoothConnector.CONNECTION_STATE_CHANGE, 8, -1, null).sendToTarget();
+                                break;
+                            case BluetoothConnector.CONNECTION_STATE_CONNECTED:
+                                btConnected = true;
+                                break;
+                        }
+                        break;
+                    case BluetoothConnector.DATA_MESSAGE:
+                        Integer value = (Integer) message.obj;
+                        if (value != null) {
+                            activity.setReceivedValue(value);
+                            Float fValue = (float) (value.shortValue() - BluetoothConnector.getStandardValue().shortValue()) / 100;
+                            setCurrentValue(fValue);
+                            activity.updateMeasuredValue(fValue.toString());
+                        }
+                }
+            }
+        }
+    }
+}

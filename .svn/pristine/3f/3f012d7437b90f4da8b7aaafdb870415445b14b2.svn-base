@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- From: file:/C:/Users/TienNT/Desktop/Orion_Android/CrankshaftDeflectionGauge/app/src/main/res/values-w820dp/dimens.xml -->
+    <eat-comment/>
+    <dimen name="activity_horizontal_margin">64dp</dimen>
+    <!-- From: file:/C:/Users/TienNT/Desktop/Orion_Android/CrankshaftDeflectionGauge/app/src/main/res/values-w820dp/strings.xml -->
+    <eat-comment/>
+    <string name="about_btn">ABOUT</string>
+    <string name="crankshaft_list_name">Crankshafts</string>
+    <string name="cyls_test_btn">CYLS TEST</string>
+    <string name="results_btn">RESULTS</string>
+    <string name="setting_btn">SETTING</string>
+</resources>

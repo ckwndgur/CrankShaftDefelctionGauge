@@ -1,0 +1,196 @@
+package nsl.orion.crankshaftdeflectiongauge.activity;
+
+import android.app.Activity;
+import android.graphics.Paint;
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
+import android.widget.ListPopupWindow;
+import android.widget.TextView;
+
+import org.achartengine.ChartFactory;
+import org.achartengine.chart.PointStyle;
+import org.achartengine.model.XYMultipleSeriesDataset;
+import org.achartengine.model.XYSeries;
+import org.achartengine.renderer.XYMultipleSeriesRenderer;
+import org.achartengine.renderer.XYSeriesRenderer;
+import org.w3c.dom.Text;
+
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+
+import nsl.orion.crankshaftdeflectiongauge.CrankShaftDeflection;
+import nsl.orion.crankshaftdeflectiongauge.R;
+import nsl.orion.crankshaftdeflectiongauge.common.Cylinder;
+import nsl.orion.crankshaftdeflectiongauge.common.CylinderArrayAdapter;
+import nsl.orion.crankshaftdeflectiongauge.common.Engine;
+import nsl.orion.crankshaftdeflectiongauge.common.EngineArrayAdapter;
+
+
+public class Result extends Activity {
+
+    public static ArrayAdapter engineArrayAdapter;
+    public static ArrayAdapter cylinderArrayAdapter;
+    private static Engine currentEngine;
+    private static ListPopupWindow listPopupWindow;
+    private static View deflectionChart;
+    private static XYMultipleSeriesDataset dataset;
+    private XYSeries verDeflection, horDeflection, stddeflection;
+    private XYMultipleSeriesRenderer multipleRenderer;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.result_screen);
+
+        engineArrayAdapter = new EngineArrayAdapter(this,new ArrayList());
+        engineArrayAdapter.addAll(CrankShaftDeflection.getEngineMap().values());
+
+        // Creating an XYseries for Vertical Deflection and Horizontal Deflection
+        verDeflection = new XYSeries(getString(R.string.vertical_deflection));
+        horDeflection = new XYSeries(getString(R.string.horizontal_deflection));
+        stddeflection = new XYSeries(getString(R.string.stand_deflection));
+
+        //Creating a dataset to hold each series
+        dataset = new XYMultipleSeriesDataset();
+
+        //Creating XYSeriesRenderer to customize Horizontal Deflection line
+        XYSeriesRenderer horrenderer = new XYSeriesRenderer();
+        horrenderer.setColor(getResources().getColor(R.color.darkblue));
+        horrenderer.setPointStyle(PointStyle.SQUARE);
+        horrenderer.setFillPoints(true);
+        horrenderer.setLineWidth(3);
+        horrenderer.setDisplayChartValues(true);
+
+        //Creating XYSeriesRenderer to customize Vertical Deflection line
+        XYSeriesRenderer verrenderer = new XYSeriesRenderer();
+        verrenderer.setColor(getResources().getColor(R.color.red));
+        verrenderer.setPointStyle(PointStyle.TRIANGLE);
+        verrenderer.setFillPoints(true);
+        verrenderer.setLineWidth(3);
+        verrenderer.setDisplayChartValues(true);
+
+        //Creating XYSeries to customize stddeflection line
+        XYSeriesRenderer stdrenderer = new XYSeriesRenderer();
+        stdrenderer.setColor(getResources().getColor(R.color.black));
+        stdrenderer.setFillPoints(true);
+        stdrenderer.setLineWidth(1);
+
+        //Creating a XYMultipleseriesRenderer to customize the whole chart
+        multipleRenderer = new XYMultipleSeriesRenderer();
+        //multipleRenderer.setXTitle("\n" + " \n" + " \n" + " \n" + (getString(R.string.cylinder_number)));
+        multipleRenderer.setXLabelsPadding(30);
+        multipleRenderer.setXTitle(getString(R.string.cylinder_number));
+        multipleRenderer.setYTitle(getString(R.string.deflection_data));
+        multipleRenderer.setLabelsTextSize(30);
+        multipleRenderer.setLabelsColor(getResources().getColor(R.color.white));
+        multipleRenderer.setAxisTitleTextSize(20);
+        multipleRenderer.setChartTitleTextSize(20);
+        multipleRenderer.setMarginsColor(getResources().getColor(R.color.cyan));
+        multipleRenderer.setYAxisMax(0.5);
+        multipleRenderer.setYAxisMin(-0.5);
+        multipleRenderer.setLegendTextSize(25);
+        multipleRenderer.setMargins(new int[]{20, 100, 50, 100});
+        multipleRenderer.setXLabelsColor(getResources().getColor(R.color.white));
+        multipleRenderer.setYLabelsColor(0, getResources().getColor(R.color.white));
+        multipleRenderer.setAxisTitleTextSize(35);
+        multipleRenderer.setYLabelsAlign(Paint.Align.RIGHT);
+        multipleRenderer.setFitLegend(true);
+
+        //Adding verrenderer and horrenderer to multipleRenderer
+        multipleRenderer.addSeriesRenderer(verrenderer);
+        multipleRenderer.addSeriesRenderer(horrenderer);
+        multipleRenderer.addSeriesRenderer(stdrenderer);
+
+        cylinderArrayAdapter = new CylinderArrayAdapter(this, new ArrayList());
+        if(currentEngine ==null && engineArrayAdapter.getCount() !=0) {
+            currentEngine =(Engine) engineArrayAdapter.getItem(0);
+            openCylinder();
+            openChart();
+        }
+
+        listPopupWindow = new ListPopupWindow(this);
+        listPopupWindow.setAdapter(engineArrayAdapter);
+        listPopupWindow.setAnchorView(findViewById(R.id.list_btn));
+        listPopupWindow.setModal(true);
+        listPopupWindow.setWidth(500);
+        listPopupWindow.setHeight(800);
+        listPopupWindow.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                currentEngine = (Engine) engineArrayAdapter.getItem(position);
+                openCylinder();
+                openChart();
+                TextView textView = (TextView) findViewById(R.id.nameOfengine);
+                textView.setText(currentEngine.getName());
+            }
+        });
+    }
+
+    public void showEngineListPopup(View view){
+            listPopupWindow.show();
+    }
+
+    private void openCylinder(){
+        cylinderArrayAdapter.clear();
+        cylinderArrayAdapter.addAll(currentEngine.cylinderArrayList);
+        cylinderArrayAdapter.notifyDataSetChanged();
+    }
+
+    private void openChart(){
+
+        int numberOfCylinder = currentEngine.cylinderArrayList.size();
+
+        float[] ep = new float[numberOfCylinder];
+        float[] tb = new float[numberOfCylinder];
+        float[] b = new float[numberOfCylinder];
+        int[] x = new int[numberOfCylinder];
+        int[] stdline = new int[numberOfCylinder];
+        DecimalFormat decimalFormat = new DecimalFormat("#.##");
+
+        int i=0;
+        for (Cylinder cylinder:currentEngine.cylinderArrayList){
+            ep[i] = cylinder.getE() - cylinder.getP();
+            b[i] = Float.parseFloat(decimalFormat.format(1/2*(cylinder.getBp() + cylinder.getBe())));
+            tb[i] = cylinder.getT() - b[i];
+            i++;
+        }
+
+        for (i=1, x[0]=1 ; i<numberOfCylinder ; i++){
+            x[i] = x[i-1] + 1;
+        }
+
+        //Creating a new array to draw standard line
+        for (i=0 ; i<numberOfCylinder ; i++){
+            stdline[i] = 0;
+        }
+
+        verDeflection.clear();
+        horDeflection.clear();
+        stddeflection.clear();
+        dataset.clear();
+        //Adding data to verdeflection and hordeflection
+        for (i=0; i<tb.length; i++ ){
+            verDeflection.add(x[i], tb[i]);
+            horDeflection.add(x[i], ep[i]);
+            stddeflection.add(x[i], stdline[i]);
+        }
+        //Creating a dataset to hold each series
+        dataset.addSeries(verDeflection);
+        dataset.addSeries(horDeflection);
+        dataset.addSeries(stddeflection);
+
+        LinearLayout chartContainer = (LinearLayout) findViewById(R.id.chart_container);
+        deflectionChart = ChartFactory.getLineChartView(getBaseContext(), dataset, multipleRenderer);
+        chartContainer.addView(deflectionChart);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_result, menu);
+        return true;
+    }
+}

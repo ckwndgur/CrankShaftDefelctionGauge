@@ -1,0 +1,26 @@
+package nsl.orion.crankshaftdeflectiongauge.sqlite;
+
+/**
+ * Created by TienNT on 9/6/2015.
+ */
+public class EngineTable {
+    public static final String TABLE_NAME = "engine";
+    public static final String COLUMN_NAME_ENGINE_ID = "id";
+    public static final String COLUMN_NAME_ENGINE_NAME = "name";
+    public static final String COLUMN_NAME_ENGINE_TYPE = "type";
+    public static final String COLUMN_NAME_NUMBER_OF_CYLINDER = "numberOfCylinder";
+    public static final String COLUMN_NAME_DATE_OF_CREATION = "dateOfCreation";
+    public static final String COLUMN_NAME_LAST_UPDATE = "lastUpdate";
+    public static final String QUERY_CREATE_TABLE =
+            "CREATE TABLE" + TABLE_NAME +
+                    "(" +
+                    COLUMN_NAME_ENGINE_ID + "INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    COLUMN_NAME_ENGINE_NAME + "TEXT, " +
+                    COLUMN_NAME_ENGINE_TYPE + "TEXT" +
+                    COLUMN_NAME_NUMBER_OF_CYLINDER + "INTEGER" +
+                    COLUMN_NAME_DATE_OF_CREATION + "INTEGER" +
+                    COLUMN_NAME_LAST_UPDATE + "INTEGER" +
+                    ")";
+    public static final String QUERY_SELECT_ALL =
+            "SELECT * FROM" + TABLE_NAME + "ORDER BY " + COLUMN_NAME_ENGINE_ID;
+}

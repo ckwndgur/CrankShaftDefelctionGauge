@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="cyan" >#006064</color>
+    <color name="cyan2" >#0097A7</color>
+    <color name="cyan3" >#00BCD4</color>
+    <color name="cyan4" >#B2EBF2</color>
+    <color name="cyan5" >#E0F7FA</color>
+    <color name="grey" >#E0E0E0</color>
+    <color name="highlightgrey" >#EEEEEE</color>
+    <color name="white" >#FFFFFF</color>
+    <color name="transparent" >#00000000</color>
+    <color name="green" >#00ff00</color>
+    <color name="darkpink">#880E4F</color>
+    <color name="red">#ff0000</color>
+    <color name="black">#000000</color>
+    <color name="blue">#007CBC</color>
+    <color name="darkblue">#002FA7</color>
+    <color name="blue1">#4099FF</color>
+</resources>

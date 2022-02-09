@@ -1,0 +1,322 @@
+package nsl.orion.crankshaftdeflectiongauge.activity;
+
+import android.app.ActionBar;
+import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import java.lang.reflect.Method;
+
+import nsl.orion.crankshaftdeflectiongauge.CrankShaftDeflection;
+import nsl.orion.crankshaftdeflectiongauge.R;
+import nsl.orion.crankshaftdeflectiongauge.bluetooth.BluetoothConnector;
+
+public class Setting extends Activity implements AdapterView.OnItemClickListener {
+    private static final String TAG = "Setting";
+    public boolean bluetoothConnected = false; // Khi bien nay la TRUE thi man hinh CYLINDER TEST moi duoc mo
+    IntentFilter filter = new IntentFilter();
+    private BluetoothAdapter btAdapter;
+    private BluetoothConnector bluetoothConnector;
+    private ImageButton onButton;
+    private ImageButton offButton;
+    private Button connectBT;
+    private Button disconnectBT;
+
+
+    private CrankShaftDeflection crankShaftDeflection;
+
+
+    private ArrayAdapter<String> foundDevicesArrayAdapter;
+
+    private EditText mEditDevice = null;
+    private EditText mEditPassword = null;
+
+    private int discoveryBluetooth = 0;
+
+    private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+
+            filter.addAction(BluetoothDevice.ACTION_FOUND);
+            filter.addAction(BluetoothDevice.ACTION_PAIRING_REQUEST);
+            filter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
+            filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECT_REQUESTED);
+            filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
+            filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
+            filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+            filter.addAction(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            filter.addAction(String.valueOf(BluetoothAdapter.STATE_TURNING_ON));
+
+            if(BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action))
+            {
+                Log.d(TAG, "Started discovery");
+                Context context2 = getApplicationContext();
+                CharSequence text = ("DISCOVERYING... ");
+                int duration = Toast.LENGTH_LONG;
+                Toast toast = Toast.makeText(context2, text, duration);
+                toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                toast.show();
+
+            }
+            else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action))
+            {
+                Log.d(TAG, "Finished discovery");
+            }
+            else if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                foundDevicesArrayAdapter.add(device.getName() + "\n" + device.getAddress());
+                foundDevicesArrayAdapter.notifyDataSetChanged();
+
+            } else if (BluetoothDevice.ACTION_ACL_DISCONNECT_REQUESTED.equals(action)) {
+
+                disconnectBT.setVisibility(View.GONE);
+                connectBT.setVisibility(View.VISIBLE);
+
+                mEditDevice.setEnabled(true);
+                mEditPassword.setEnabled(true);
+            } else if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
+                connectBT.setVisibility(View.GONE);
+                disconnectBT.setVisibility(View.VISIBLE);
+
+                mEditDevice.setEnabled(false);
+                mEditPassword.setEnabled(false);
+
+            } else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {
+
+                bluetoothConnected = false;
+
+                disconnectBT.setVisibility(View.GONE);
+                connectBT.setVisibility(View.VISIBLE);
+
+                mEditDevice.setEnabled(true);
+                mEditPassword.setEnabled(true);
+            } else if (BluetoothDevice.ACTION_PAIRING_REQUEST.equals(action)) {
+                setBluetoothPairingPin(CrankShaftDeflection.getTargetDevice());
+                Log.d(TAG, "PAIRING Request");
+            }
+        }
+    };
+
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        String[] addr = (((TextView) view).getText().toString()).split("\n");
+        mEditDevice.setText(addr[0]);
+        Context context = getApplicationContext();
+        CharSequence text = ("ITEM CLICK" + "\n" + "MAC Address : " + addr[1]);
+        int duration = Toast.LENGTH_LONG;
+        Toast toast = Toast.makeText(context, text, duration);
+        toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+        toast.show();
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.setting_screen);
+        ActionBar ab = getActionBar();
+        ab.setTitle(R.string.title_setting_screen);
+        btAdapter = BluetoothAdapter.getDefaultAdapter();
+        offButton = (ImageButton) findViewById(R.id.ic_bluetooth_disable_white_48dp);
+        onButton = (ImageButton) findViewById(R.id.ic_bluetooth_white_48dp);
+
+        connectBT = (Button) findViewById(R.id.connect_bluetooth);
+        disconnectBT = (Button) findViewById(R.id.disconnect_bluetooth);
+
+        connectBT.setVisibility(View.VISIBLE);
+        disconnectBT.setVisibility(View.GONE);
+        if(btAdapter.getState() == BluetoothAdapter.STATE_OFF) {
+            onButton.setVisibility(View.VISIBLE);
+            offButton.setVisibility(View.GONE);
+        } else {
+            onButton.setVisibility(View.GONE);
+            offButton.setVisibility(View.VISIBLE);
+        }
+
+        mEditDevice = (EditText) findViewById(R.id.edit_devicename);
+        mEditPassword = (EditText) findViewById(R.id.edit_password);
+
+        //loadDeviceName();
+
+        bluetoothConnector = CrankShaftDeflection.getBluetoothConnector();
+        if (CrankShaftDeflection.getTargetDevice() != null){
+            mEditDevice.setText(CrankShaftDeflection.getTargetDevice().getName());
+            connectBT.setVisibility(View.GONE);
+            disconnectBT.setVisibility(View.VISIBLE);
+            mEditDevice.setEnabled(false);
+            mEditPassword.setEnabled(false);
+        }
+
+        if(btAdapter.isDiscovering()){
+            btAdapter.cancelDiscovery();
+        }
+        btAdapter.startDiscovery();
+
+        foundDevicesArrayAdapter = new ArrayAdapter<String>(this, R.layout.listviewitem);
+
+        this.registerReceiver(broadcastReceiver, new IntentFilter(BluetoothDevice.ACTION_FOUND)); // Don't forget to unregister during onDestroy
+        this.registerReceiver(broadcastReceiver, new IntentFilter(BluetoothDevice.ACTION_PAIRING_REQUEST));
+        this.registerReceiver(broadcastReceiver, new IntentFilter(BluetoothDevice.ACTION_ACL_CONNECTED));
+        this.registerReceiver(broadcastReceiver, new IntentFilter(BluetoothDevice.ACTION_ACL_DISCONNECT_REQUESTED));
+        this.registerReceiver(broadcastReceiver, new IntentFilter(BluetoothDevice.ACTION_ACL_DISCONNECTED));
+        this.registerReceiver(broadcastReceiver, new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_STARTED));
+        this.registerReceiver(broadcastReceiver, new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED));
+        this.registerReceiver(broadcastReceiver, new IntentFilter(BluetoothAdapter.ACTION_REQUEST_ENABLE));
+
+        ListView list = (ListView) findViewById(R.id.crankshaftlist);
+
+        list.setAdapter(foundDevicesArrayAdapter);
+        foundDevicesArrayAdapter.notifyDataSetChanged();
+        list.setOnItemClickListener(this);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_setting, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void onBluetooth(View v) {
+
+        connectBT.setEnabled(true);
+        disconnectBT.setEnabled(true);
+
+        if (!btAdapter.isEnabled()) {
+            btAdapter.enable();
+            offButton.setVisibility(View.VISIBLE);
+            onButton.setVisibility(View.GONE);
+            Context context = getApplicationContext();
+            CharSequence text = ("TURN ON BLUETOOTH ");
+            int duration = Toast.LENGTH_LONG;
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+            toast.show();
+        }else {
+            offButton.setVisibility(View.VISIBLE);
+            onButton.setVisibility(View.GONE);
+        }
+        if(btAdapter.isDiscovering()){
+            btAdapter.cancelDiscovery();
+        }
+        try {
+            Thread.sleep(150);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        foundDevicesArrayAdapter.clear();
+        btAdapter.startDiscovery();
+    }
+
+
+    public void offBluetooth(View v) {
+
+        if(btAdapter.isDiscovering()){
+            btAdapter.cancelDiscovery();
+        }
+
+        if (btAdapter.isEnabled()) {
+            btAdapter.disable();
+
+            offButton.setVisibility(View.GONE);
+            onButton.setVisibility(View.VISIBLE);
+
+            connectBT.setEnabled(false);
+            disconnectBT.setEnabled(false);
+
+            Context context = getApplicationContext();
+            CharSequence text = ("TURN OFF BLUETOOTH ");
+            int duration = Toast.LENGTH_LONG;
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+            toast.show();
+        }
+        else {
+            offButton.setVisibility(View.GONE);
+            onButton.setVisibility(View.VISIBLE);
+        }
+        foundDevicesArrayAdapter.clear();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (btAdapter != null) {
+            btAdapter.cancelDiscovery();
+        }
+        this.unregisterReceiver(broadcastReceiver);
+    }
+
+    public void onConnectButton(View v) {
+        String deviceName = mEditDevice.getText().toString();
+        for (int i = 0; i < foundDevicesArrayAdapter.getCount(); i++) {
+            String tmpName = foundDevicesArrayAdapter.getItem(i);
+            String addr[] = tmpName.split("\n");
+            if (addr[0].matches(deviceName)) {
+                connectDevice(addr[1]);
+                return;
+            }
+
+        }
+    }
+
+    private void connectDevice(String addr) {
+        CrankShaftDeflection.setTargetDevice(btAdapter.getRemoteDevice(addr));
+        bluetoothConnector = new BluetoothConnector(CrankShaftDeflection.getTargetDevice());
+        bluetoothConnector.connect();
+    }
+
+    public void setBluetoothPairingPin(BluetoothDevice device) {
+        byte[] pinBytes = mEditPassword.getText().toString().getBytes();
+        try {
+            device.setPin(pinBytes);
+            try {
+                device.setPairingConfirmation(false);
+                device.createBond();
+            } catch (Exception e) {
+                Log.e(TAG, e.getMessage());
+                e.printStackTrace();
+            }
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    public void unpairDevice(View v) {
+
+        try {
+            String deviceName = mEditDevice.getText().toString();
+            BluetoothDevice device = btAdapter.getRemoteDevice(CrankShaftDeflection.getTargetDevice().getAddress());
+            Method m = device.getClass().getMethod("removeBond", (Class[]) null);
+            m.invoke(device, (Object[]) null);
+            CrankShaftDeflection.setTargetDevice(null);
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage());
+        }
+    }
+
+};

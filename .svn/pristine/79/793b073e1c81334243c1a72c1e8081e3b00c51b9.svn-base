@@ -1,0 +1,64 @@
+<resources>
+    <string name="app_name">Crankshaft Deflection Gauge</string>
+    <string name="global_object_name">CrankShaftDeflection</string>
+
+    <!-- prefence keys -->
+    <string name="pref_commands_mode">pref_commands_mode</string>
+    <string name="pref_commands_ending">pref_commands_ending</string>
+    <string name="pref_log_timing">pref_log_timing</string>
+    <string name="pref_log_direction">pref_log_direction</string>
+    <string name="pref_need_clean">pref_need_clean</string>
+    <!-- prefence keys -->
+
+
+    <!-- screen title -->
+    <string name="title_main_menu_screen">Crankshaft Deflection Gauge</string>
+    <string name="title_engine_list_screen">Engine List</string>
+    <string name="title_cylinder_test_screen">Cylinder Test</string>
+    <string name="title_setting_screen">Setting</string>
+    <!-- screen title -->
+
+    <!-- view title -->
+    <string name="engine_list_name">Engines</string>
+    <string name="bluetooth_device_list">Available devices</string>
+    <!-- view title -->
+
+    <!-- button name -->
+    <string name="cyls_test_btn">Cylinder test</string>
+    <string name="results_btn">Result</string>
+    <string name="setting_btn">Setting</string>
+    <string name="about_btn">About</string>
+    <string name="add_btn">Add</string>
+    <string name="connect_btn">Connect</string>
+    <string name="disconnect_btn">Disconnect</string>
+    <!-- button name -->
+
+
+    <!-- hint string -->
+    <string name="hint_device_name">Connected device</string>
+    <string name="hint_password">PIN</string>
+    <string name="hint_crankshaft_name">Engine name</string>
+    <string name="hint_number_of_cylinder">Number of cylinder</string>
+    <string name="hint_empty_device_name">&lt;New device&gt;</string>
+    <!-- hint string -->
+
+    <!-- menu title -->
+    <string name="menu_settings">Settings</string>
+    <!-- menu title -->
+
+    <!-- info string -->
+    <string name="empty_value">---</string>
+    <string name="turn_off_bt_message">To see other devices,\n turn on Bluetooth</string>
+    <string name="device_name_not_set">Not set</string>
+    <!-- info string -->
+
+    <!-- alert messages -->
+    <string name="no_bt_support">Your device doesn\'t support bluetooth.</string>
+    <!-- alert messages -->
+
+
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_engine_list">EngineList</string>
+    <string name="action_settings">Settings</string>
+
+</resources>

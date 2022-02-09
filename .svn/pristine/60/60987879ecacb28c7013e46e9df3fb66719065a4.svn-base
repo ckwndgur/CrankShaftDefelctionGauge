@@ -1,0 +1,74 @@
+package nsl.orion.crankshaftdeflectiongauge.sqlite;
+
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+
+import java.util.Map;
+
+import nsl.orion.crankshaftdeflectiongauge.common.Cylinder;
+import nsl.orion.crankshaftdeflectiongauge.common.Engine;
+
+/**
+ * Created by TienNT on 9/7/2015.
+ */
+public class SQLiteConnector {
+    public static final String DB_NAME = "cdg.db";
+    public static final int DB_VERSION = 1;
+
+    public static final int SUCESS = 1;
+    public static final int FAIL = 0;
+
+    SQLiteDatabase database;
+    CDGSQLiteOpenHelper openHelper;
+
+    public SQLiteConnector(Context context) {
+        openHelper = new CDGSQLiteOpenHelper(context, DB_NAME, null, DB_VERSION);
+    }
+
+    public int loadAll(Map<Integer, Engine> engineMap) {
+
+        return SUCESS;
+    }
+
+    public int insertEngine(Engine engine) {
+
+        return SUCESS;
+    }
+
+    public int insertEmptyCylinders(int numberOfCylinders, int engineId) {
+
+        return SUCESS;
+    }
+
+    public int addCylinder(int engineId, int cylinderOrder) {
+
+        return SUCESS;
+    }
+
+
+    public int updateCylinder(int updatePosition, Cylinder cylinder) {
+
+
+        return SUCESS;
+    }
+
+
+    public int updateEngine(int numberOfCylinders) {
+
+
+        return SUCESS;
+    }
+
+
+    public int deleteCylinder(int engineId, int order) {
+
+
+        return SUCESS;
+    }
+
+
+    public int deleteEngine(int Id) {
+
+        return SUCESS;
+    }
+}

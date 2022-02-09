@@ -1,0 +1,204 @@
+package nsl.orion.crankshaftdeflectiongauge.activity;
+
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.os.Bundle;
+import android.os.Message;
+import android.app.ActionBar;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
+
+import java.lang.ref.WeakReference;
+import java.util.Set;
+
+import nsl.orion.crankshaftdeflectiongauge.R;
+import nsl.orion.crankshaftdeflectiongauge.bluetooth.DeviceConnector;
+import nsl.orion.crankshaftdeflectiongauge.bluetooth.DeviceInfo;
+import nsl.orion.crankshaftdeflectiongauge.common.Utils;
+
+
+public class CylinderTest extends Activity {
+
+
+    public static final int MESSAGE_STATE_CHANGE = 1;
+    public static final int MESSAGE_READ = 2;
+    public static final int MESSAGE_WRITE = 3;
+    public static final int MESSAGE_DEVICE_NAME = 4;
+    public static final int MESSAGE_TOAST = 5;
+
+
+    private static String MSG_NOT_CONNECTED;
+    private static String MSG_CONNECTING;
+    private static String MSG_CONNECTED;
+
+    private TextView measuredText;
+    private String deviceName;
+
+    BluetoothAdapter btAdapter;
+
+    private static DeviceConnector connector;
+    private static BluetoothResponseHandler mHandler;
+    private static final String SAVED_PENDING_REQUEST_ENABLE_BT = "PENDING_REQUEST_ENABLE_BT";
+    // do not resend request to enable Bluetooth
+    // if there is a request already in progress
+    // See: https://code.google.com/p/android/issues/detail?id=24931#c1
+    boolean pendingRequestEnableBt = false;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.cyliner_test_screen);
+
+        if (mHandler == null) mHandler = new BluetoothResponseHandler(this);
+        else mHandler.setTarget(this);
+
+        if (savedInstanceState != null) {
+            pendingRequestEnableBt = savedInstanceState.getBoolean(SAVED_PENDING_REQUEST_ENABLE_BT);
+        }
+        btAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (btAdapter == null) {
+            final String no_bluetooth = getString(R.string.no_bt_support);
+            showAlertDialog(no_bluetooth);
+        }
+
+        this.measuredText = (TextView)findViewById(R.id.measuredText);
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_cyliner_test, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        return super.onOptionsItemSelected(item);
+    }
+
+
+
+    private void setupConnector(BluetoothDevice connectedDevice) {
+        stopConnection();
+        try {
+            String emptyName = getString(R.string.hint_empty_device_name);
+            DeviceInfo data = new DeviceInfo(connectedDevice, emptyName);
+            connector = new DeviceConnector(data, mHandler);
+            connector.connect();
+        } catch (IllegalArgumentException e) {
+            Utils.log("setupConnector failed: " + e.getMessage());
+        }
+    }
+
+    private void stopConnection() {
+        if (connector != null) {
+            connector.stop();
+            connector = null;
+            deviceName = null;
+        }
+    }
+
+
+    void updateMeasuredValue(String message) {
+        measuredText.setText(message);
+    }
+
+    void setDeviceName(String deviceName) {
+        this.deviceName = deviceName;
+        getActionBar().setSubtitle(deviceName);
+    }
+
+    public void turnOnBT(View view) {
+
+        Set<BluetoothDevice> dvs = btAdapter.getBondedDevices();
+        if (isAdapterReady() && (connector == null)) setupConnector((BluetoothDevice)dvs.toArray()[0]);
+
+    }
+
+
+    public void turnOffBT(View view) {
+        stopConnection();
+    }
+
+    void showAlertDialog(String message) {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        alertDialogBuilder.setTitle(getString(R.string.app_name));
+        alertDialogBuilder.setMessage(message);
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
+    }
+
+    boolean isAdapterReady() {
+        return (btAdapter != null) && (btAdapter.isEnabled());
+    }
+
+
+
+
+
+    private static class BluetoothResponseHandler extends android.os.Handler {
+        private WeakReference<CylinderTest> mActivity;
+
+        public BluetoothResponseHandler(CylinderTest activity) {
+            mActivity = new WeakReference<CylinderTest>(activity);
+        }
+
+        public void setTarget(CylinderTest target) {
+            mActivity.clear();
+            mActivity = new WeakReference<CylinderTest>(target);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            CylinderTest activity = mActivity.get();
+            if (activity != null) {
+                switch (msg.what) {
+                    case MESSAGE_STATE_CHANGE:
+
+                        Utils.log("MESSAGE_STATE_CHANGE: " + msg.arg1);
+                        final ActionBar bar = activity.getActionBar();
+                        switch (msg.arg1) {
+                            case DeviceConnector.STATE_CONNECTED:
+                                bar.setSubtitle(MSG_CONNECTED);
+                                break;
+                            case DeviceConnector.STATE_CONNECTING:
+                                bar.setSubtitle(MSG_CONNECTING);
+                                break;
+                            case DeviceConnector.STATE_NONE:
+                                bar.setSubtitle(MSG_NOT_CONNECTED);
+                                break;
+                        }
+                        break;
+
+                    case MESSAGE_READ:
+                        final String readMessage = (String) msg.obj;
+                        if (readMessage != null) {
+                            activity.updateMeasuredValue(readMessage);
+                        }
+                        break;
+
+                    case MESSAGE_DEVICE_NAME:
+                        activity.setDeviceName((String) msg.obj);
+                        break;
+
+                    case MESSAGE_WRITE:
+                        // stub
+                        break;
+
+                    case MESSAGE_TOAST:
+                        // stub
+                        break;
+                }
+            }
+        }
+    }
+
+}

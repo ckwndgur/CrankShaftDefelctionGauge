@@ -1,0 +1,198 @@
+package nsl.orion.crankshaftdeflectiongauge.activity;
+
+import android.app.Activity;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListAdapter;
+import android.widget.ListPopupWindow;
+import android.widget.ListView;
+
+import org.achartengine.ChartFactory;
+import org.achartengine.chart.PointStyle;
+import org.achartengine.model.XYMultipleSeriesDataset;
+import org.achartengine.model.XYSeries;
+import org.achartengine.renderer.XYMultipleSeriesRenderer;
+import org.achartengine.renderer.XYSeriesRenderer;
+
+import java.sql.Time;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+
+import nsl.orion.crankshaftdeflectiongauge.CrankShaftDeflection;
+import nsl.orion.crankshaftdeflectiongauge.R;
+import nsl.orion.crankshaftdeflectiongauge.common.Cylinder;
+import nsl.orion.crankshaftdeflectiongauge.common.CylinderListAdapter;
+import nsl.orion.crankshaftdeflectiongauge.common.Engine;
+import nsl.orion.crankshaftdeflectiongauge.common.EngineListAdapter;
+
+
+public class Result extends Activity {
+
+    private static CrankShaftDeflection crankShaftDeflection;
+    public List<Engine> engineList;
+    public List<Cylinder> cylinderList;
+    private Engine currentEngine;
+    ListPopupWindow mList;
+    private View mChart;
+
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.result_screen);
+
+//        engineList = new ArrayList<Engine>(CrankShaftDeflection.getEngineMap().values());
+//        for (Engine engine:engineList){
+//            if (engine.getId() == 1){
+//            cylinderList = new ArrayList<Cylinder>(engine.cylinderMap.values());
+//                openCylinder();
+//            }
+//        }
+
+
+        cylinderList = new ArrayList<>(currentEngine.cylinderMap.values());
+
+
+
+        Engine engine1 = new Engine();
+        Time time = new Time(Calendar.getInstance().getTimeInMillis());
+        engine1.setName("Engine 1");
+        engine1.setNumberOfCylinder(2);
+        engine1.setLastUpdate(time);
+        engine1.setType("default");
+        engine1.setDateOfCreation(time);
+
+        Engine engine2 = new Engine();
+        engine2.setName("Engine 2");
+        engine2.setNumberOfCylinder(3);
+        engine2.setLastUpdate(time);
+        engine2.setType("default");
+        engine2.setDateOfCreation(time);
+
+        ImageView list_btn = (ImageView) findViewById(R.id.list_btn);
+        mList = new ListPopupWindow(this);
+        ListAdapter engineListAdapter = new EngineListAdapter(this,new ArrayList<>());
+        mList.setAdapter(engineListAdapter);
+        mList.setAnchorView(list_btn);
+        mList.setModal(true);
+        mList.setContentWidth(500);
+        mList.setWidth(400);
+        mList.setHeight(300);
+
+    }
+
+    public void mOnclick(View view){
+            mList.show();
+        Log.d("CAINUT","clicked");
+    }
+
+    private void openCylinder(){
+        ListView mListView = (ListView) findViewById(R.id.listView1);
+        CylinderListAdapter cylinderListAdapter = new CylinderListAdapter(this,cylinderList);
+        mListView.setAdapter(cylinderListAdapter);
+    }
+
+
+    private void openChart(){
+
+        // Calculate offset between Top and Bottom
+        float[] TB = {0.01f, 0.02f, -0.01f, 0.01f, 0.03f};
+        //Calculate offset between Exhaust side and Camshaft side
+        float[] EP = {-0.01f, 0.01f, 0.02f, 0.01f, -0.02f};
+
+        int[] x = new int[30];
+
+        for (int i=1; i<TB.length; i++){
+            x[0] = 1;
+            x[i] = x[i-1];
+            x[i]++;};
+
+        //Creating a new array to draw standard line
+        int[] stdline = new int[30];
+        for (int i=0; i<TB.length;i++){
+            stdline[i] = 0;};
+
+        // Creating an XYseries for Vertical Deflection and Horizontal Deflection
+        XYSeries verdeflection = new XYSeries("Vertical Deflection");
+        XYSeries hordeflection = new XYSeries("Horizontal Deflection");
+        XYSeries stddeflection = new XYSeries("Standard Deflection");
+
+        //Adding data to verdeflection and hordeflection
+        for (int i=0; i<TB.length;i++ ){
+            verdeflection.add(x[i], TB[i]);
+            hordeflection.add(x[i], EP[i]);
+            stddeflection.add(x[i], stdline[i]);
+        };
+
+        //Creating a dataset to hold each series
+        XYMultipleSeriesDataset dataset = new XYMultipleSeriesDataset();
+        dataset.addSeries(verdeflection);
+        dataset.addSeries(hordeflection);
+        dataset.addSeries(stddeflection);
+
+        //Creating XYSeriesRenderer to customize Vertical Deflection
+        XYSeriesRenderer verrenderer = new XYSeriesRenderer();
+        verrenderer.setColor(Color.RED);
+        verrenderer.setPointStyle(PointStyle.TRIANGLE);
+        verrenderer.setFillPoints(true);
+        verrenderer.setLineWidth(3);
+        verrenderer.setDisplayChartValues(true);
+
+        //Creating XYSeriesRenderer to customize Horizontal Deflection
+        XYSeriesRenderer horrenderer = new XYSeriesRenderer();
+        horrenderer.setColor(Color.GREEN);
+        horrenderer.setPointStyle(PointStyle.SQUARE);
+        horrenderer.setFillPoints(true);
+        horrenderer.setLineWidth(3);
+        horrenderer.setDisplayChartValues(true);
+
+        //Creating XYSeries to customize stddeflection Line
+        XYSeriesRenderer stdrenderer = new XYSeriesRenderer();
+        stdrenderer.setColor(Color.BLACK);
+        stdrenderer.setFillPoints(true);
+        stdrenderer.setLineWidth(1);
+
+        //Creating a XYMultipleseriesRenderer to customize the whole chart
+        XYMultipleSeriesRenderer multipleRenderer = new XYMultipleSeriesRenderer();
+        multipleRenderer.setXTitle("\n" + " \n" + " \n" + " \n" + "Cylinder Number");
+        multipleRenderer.setYTitle("Deflection Data");
+        multipleRenderer.setLabelsTextSize(30);
+        multipleRenderer.setLabelsColor(Color.WHITE);
+        multipleRenderer.setAxisTitleTextSize(20);
+        multipleRenderer.setChartTitleTextSize(20);
+        multipleRenderer.setMarginsColor(getResources().getColor(R.color.cyan));
+        multipleRenderer.setYAxisMax(0.5);
+        multipleRenderer.setYAxisMin(-0.5);
+        multipleRenderer.setLegendTextSize(25);
+        multipleRenderer.setMargins(new int[]{20, 100, 50, 100});
+        multipleRenderer.setXLabelsColor(Color.WHITE);
+        multipleRenderer.setYLabelsColor(0, Color.WHITE);
+        multipleRenderer.setAxisTitleTextSize(35);
+        multipleRenderer.setYLabelsAlign(Paint.Align.RIGHT);
+        multipleRenderer.setFitLegend(true);
+
+        //Adding verrenderer and horrenderer to multipleRenderer
+        multipleRenderer.addSeriesRenderer(verrenderer);
+        multipleRenderer.addSeriesRenderer(horrenderer);
+        multipleRenderer.addSeriesRenderer(stdrenderer);
+
+        LinearLayout chartContainer = (LinearLayout) findViewById(R.id.chart_container);
+        mChart = ChartFactory.getLineChartView(getBaseContext(), dataset, multipleRenderer);
+        chartContainer.addView(mChart);
+    };
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_result, menu);
+        return true;
+    }
+}

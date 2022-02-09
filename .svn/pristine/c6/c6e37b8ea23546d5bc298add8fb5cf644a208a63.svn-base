@@ -1,0 +1,157 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:paddingLeft="0dp"
+    android:paddingRight="0dp"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="0dp"
+    tools:context="nsl.orion.crankshaftdeflectiongauge.CylinerTest"
+    android:orientation="vertical"
+    android:layout_weight="9">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:layout_weight="1">
+        <TextView
+            android:text="Engine name"
+            android:textColor="@color/cyan"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:textStyle="bold"
+            android:gravity="center_vertical"
+            android:paddingLeft="16dp"
+            android:textSize="20sp"
+            android:layout_weight="3"
+            android:id="@+id/tvEngineName"/>
+        <TextView
+            android:text="Cylinder name"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:gravity="center"
+            android:paddingRight="16dp"
+            android:textColor="@color/cyan"
+            android:textSize="20sp"
+            android:id="@+id/tvCylinderNumber"
+            android:layout_weight="2"
+            />
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="7"
+        android:gravity="center">
+        <RelativeLayout
+            android:layout_width="300dp"
+            android:layout_height="300dp"
+            android:layout_centerInParent="true">
+
+            <ImageView
+                android:id="@+id/gauge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/gauge"
+                android:layout_centerInParent="true"
+                android:background="@color/transparent"/>
+
+            <TextView
+                android:text="@string/empty_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:layout_centerHorizontal="true"
+                android:textSize="@dimen/abc_text_size_medium_material"
+                android:id="@+id/tvT"/>
+
+            <TextView
+                android:text="@string/empty_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="100dp"
+                android:layout_marginLeft="240dp"
+                android:textSize="@dimen/abc_text_size_medium_material"
+                android:id="@+id/tvP"/>
+
+            <TextView
+                android:text="@string/empty_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="230dp"
+                android:layout_marginLeft="210dp"
+                android:textSize="@dimen/abc_text_size_medium_material"
+                android:id="@+id/tvBP"/>
+
+            <TextView
+                android:text="@string/empty_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="230dp"
+                android:layout_marginLeft="70dp"
+                android:textSize="@dimen/abc_text_size_medium_material"
+                android:id="@+id/tvBE"/>
+
+            <TextView
+                android:text="@string/empty_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="100dp"
+                android:layout_marginLeft="37dp"
+                android:textSize="@dimen/abc_text_size_medium_material"
+                android:id="@+id/tvE"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="@string/disconnected"
+                android:id="@+id/measuredText"
+                android:textSize="@dimen/abc_text_size_medium_material"/>
+        </RelativeLayout>
+
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@color/cyan"
+        android:layout_weight="1">
+        <ImageButton
+            android:onClick="prevCylinder"
+            android:id="@+id/arrow_left_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_keyboard_arrow_left_white_48dp"
+            android:padding="@dimen/activity_vertical_margin"
+            android:background="@color/cyan"
+            android:layout_alignParentLeft="true">
+        </ImageButton>
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <ImageButton
+            android:onClick="nextCylinder"
+            android:id="@+id/arrow_right_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_keyboard_arrow_right_white_48dp"
+            android:padding="@dimen/activity_vertical_margin"
+            android:background="@color/cyan"
+            android:layout_alignParentRight="true">
+            </ImageButton>
+            <ImageButton
+                android:onClick="addCylinder"
+                android:id="@+id/add_cylinder_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/ic_add_white_48dp"
+                android:visibility="gone"
+                android:padding="@dimen/activity_vertical_margin"
+                android:background="@color/cyan"
+                android:layout_alignParentRight="true">
+            </ImageButton>
+        </RelativeLayout>
+    </RelativeLayout>
+
+</LinearLayout>

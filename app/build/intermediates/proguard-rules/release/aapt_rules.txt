@@ -1,0 +1,62 @@
+# view AndroidManifest.xml #generated:16
+-keep class nsl.orion.crankshaftdeflectiongauge.CrankShaftDeflection { <init>(...); }
+
+# view AndroidManifest.xml #generated:48
+-keep class nsl.orion.crankshaftdeflectiongauge.activity.About { <init>(...); }
+
+# view AndroidManifest.xml #generated:40
+-keep class nsl.orion.crankshaftdeflectiongauge.activity.CylinderTest { <init>(...); }
+
+# view AndroidManifest.xml #generated:31
+-keep class nsl.orion.crankshaftdeflectiongauge.activity.EngineList { <init>(...); }
+
+# view AndroidManifest.xml #generated:22
+-keep class nsl.orion.crankshaftdeflectiongauge.activity.MainMenu { <init>(...); }
+
+# view AndroidManifest.xml #generated:44
+-keep class nsl.orion.crankshaftdeflectiongauge.activity.Result { <init>(...); }
+
+# view AndroidManifest.xml #generated:36
+-keep class nsl.orion.crankshaftdeflectiongauge.activity.Setting { <init>(...); }
+
+# onClick res/layout/main_menu_screen.xml #generated:122
+# onClick res/layout/main_menu_screen.xml #generated:132
+# onClick res/layout/main_menu_screen.xml #generated:140
+-keepclassmembers class * { *** about(...); }
+
+# onClick res/layout/engine_list_screen.xml #generated:80
+-keepclassmembers class * { *** addEngine(...); }
+
+# onClick res/layout/main_menu_screen.xml #generated:34
+# onClick res/layout/main_menu_screen.xml #generated:44
+# onClick res/layout/main_menu_screen.xml #generated:53
+-keepclassmembers class * { *** engineList(...); }
+
+# onClick res/layout/result_screen.xml #generated:131
+-keepclassmembers class * { *** exportCurrentEngine(...); }
+
+# onClick res/layout/cyliner_test_screen.xml #generated:174
+-keepclassmembers class * { *** nextCylinder(...); }
+
+# onClick res/layout/setting_screen.xml #generated:105
+-keepclassmembers class * { *** onOffBluetooth(...); }
+
+# onClick res/layout/cyliner_test_screen.xml #generated:164
+-keepclassmembers class * { *** prevCylinder(...); }
+
+# onClick res/layout/main_menu_screen.xml #generated:61
+# onClick res/layout/main_menu_screen.xml #generated:71
+# onClick res/layout/main_menu_screen.xml #generated:79
+-keepclassmembers class * { *** result(...); }
+
+# onClick res/layout/main_menu_screen.xml #generated:105
+# onClick res/layout/main_menu_screen.xml #generated:114
+# onClick res/layout/main_menu_screen.xml #generated:95
+-keepclassmembers class * { *** setting(...); }
+
+# onClick res/layout/result_screen.xml #generated:141
+-keepclassmembers class * { *** showEngineListPopup(...); }
+
+# onClick res/layout/engine_list_screen.xml #generated:87
+-keepclassmembers class * { *** updateEngine(...); }
+

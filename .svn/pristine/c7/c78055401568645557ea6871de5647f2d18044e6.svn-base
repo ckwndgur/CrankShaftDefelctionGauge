@@ -1,0 +1,123 @@
+package nsl.orion.crankshaftdeflectiongauge.activity;
+
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.bluetooth.BluetoothAdapter;
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
+
+import nsl.orion.crankshaftdeflectiongauge.CrankShaftDeflection;
+import nsl.orion.crankshaftdeflectiongauge.R;
+import nsl.orion.crankshaftdeflectiongauge.bluetooth.BluetoothDataHandler;
+
+
+public class CylinderTest extends Activity {
+
+    private static BluetoothDataHandler bluetoothDataHandler;
+    BluetoothAdapter btAdapter;
+    private TextView measuredText;
+<<<<<<< .mine
+    private TextView t_index;
+    private TextView p_index;
+    private TextView e_index;
+    private TextView bp_index;
+    private TextView be_index;
+    // do not resend request to enable Bluetooth
+    // if there is a request already in progress
+    // See: https://code.google.com/p/android/issues/detail?id=24931#c1
+=======
+>>>>>>> .r40
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.cyliner_test_screen);
+
+        if (bluetoothDataHandler == null)
+            bluetoothDataHandler = new BluetoothDataHandler(this);
+        else bluetoothDataHandler.setTarget(this);
+
+        CrankShaftDeflection.setBluetoothDataHandler(bluetoothDataHandler);
+
+        btAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (btAdapter == null) {
+            final String no_bluetooth = getString(R.string.no_bt_support);
+            showAlertDialog(no_bluetooth);
+        }
+        this.measuredText = (TextView) findViewById(R.id.measuredText);
+        t_index= (TextView) findViewById(R.id.tvT);
+        p_index=(TextView) findViewById(R.id.tvP);
+        e_index=(TextView) findViewById(R.id.tvE);
+        bp_index=(TextView) findViewById(R.id.tvBP);
+        be_index=(TextView) findViewById(R.id.tvBE);
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_cyliner_test, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return super.onOptionsItemSelected(item);
+    }
+
+<<<<<<< .mine
+    public void t_button (View view){
+        t_index=measuredText;
+    }
+    public void p_button(View view){
+        p_index=measuredText;
+    }
+    public void bp_button(View view){
+        bp_index=measuredText;
+    }
+    public void be_button(View view){
+        be_index=measuredText;
+    }
+    public void e_button(View view){
+        e_index=measuredText;
+    }
+
+
+    private void setupConnector(BluetoothDevice connectedDevice) {
+        stopConnection();
+        try {
+            String emptyName = "<Empty Name>";
+            DeviceInfo deviceInfo = new DeviceInfo(connectedDevice, emptyName);
+            bluetoothConnector = new BluetoothConnector(deviceInfo, bluetoothResponseHandler);
+            bluetoothConnector.connect();
+        } catch (IllegalArgumentException e) {
+            Utils.log("setupConnector failed: " + e.getMessage());
+        }
+    }
+
+    private void stopConnection() {
+        if (bluetoothConnector != null) {
+            bluetoothConnector.stop();
+            bluetoothConnector = null;
+        }
+    }
+
+
+    void updateMeasuredValue(String message) {
+=======
+    public void updateMeasuredValue(String message) {
+>>>>>>> .r40
+        measuredText.setText(message);
+    }
+
+    private void showAlertDialog(String message) {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        alertDialogBuilder.setTitle(getString(R.string.app_name));
+        alertDialogBuilder.setMessage(message);
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
+    }
+
+}

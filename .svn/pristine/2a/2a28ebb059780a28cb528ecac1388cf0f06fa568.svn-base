@@ -1,0 +1,22 @@
+<resources>
+        <!-- inherit from the material theme -->
+    <style name="AppTheme" parent="android:Theme.Material">
+            <!-- Main theme colors -->
+            <!--   your app branding color for the app bar -->
+            <item name="android:colorPrimary">@color/cyan</item>
+            <!--   darker variant for the status bar and contextual app bars -->
+
+            <!--   theme UI controls like checkboxes and text fields -->
+            <item name="android:colorAccent">@color/cyan</item>
+
+        <item name="android:popupMenuStyle">@style/PopupMenu</item>
+
+            <item name="android:windowBackground">@color/grey</item>
+        </style>
+    <style name="PopupMenu" parent="@android:style/Widget.PopupMenu">
+        <item name="android:popupBackground">@color/cyan</item>
+    </style>
+    <style name="DialogTheme" parent="android:Theme.Material.Dialog">
+        <item name="android:windowBackground">@color/cyan</item>
+    </style>
+</resources>
